@@ -1,7 +1,17 @@
 {
     "functions": {
-        "api/*.php": {
+        "api/v1/*.php": {
             "runtime": "vercel-php@0.4.0"
         }
-    }
+    },
+    "routes": [
+        {
+            "src": "/v1/audio",
+            "dest": "/api/v1/audio.php"
+        },
+        {
+            "src": "/v1/folder",
+            "dest": "/api/v1/folder.php"
+        }
+    ]
 }
