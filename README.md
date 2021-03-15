@@ -20,7 +20,7 @@ I use the following tools to develop, test, and deploy the Flytrap API:
 * [VSCode]() - Code editor for development
 * [Vercel]() - hosting platform
 * [vercel-php]() - Runtime for PHP to deploy on Vercel
-* [Borum Sleep](https://github.com/Borumer/Borum-Sleep) - PHP library for generic REST API code
+* [PHP Sleep](https://github.com/Borumer/php-sleep) - PHP library for generic REST API code
 * [PHP]() - language for developing REST API
 
 ## License

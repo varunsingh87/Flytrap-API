@@ -3,8 +3,8 @@
     "description": "The REST API for Borum's Flytrap",
     "type": "project",
     "require": {
-        "varuns/borum-sleep": "^0.1.2",
-        "icanhazstring/composer-unused": "^0.7.5"
+        "icanhazstring/composer-unused": "^0.7.5",
+        "varuns/php-sleep": "^1.1.0-alpha"
     },
     "license": "MIT",
     "authors": [
