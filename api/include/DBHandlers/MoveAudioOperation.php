@@ -2,7 +2,7 @@
 
 namespace VarunS\Flytrap\DBHandlers;
 
-use VarunS\Flytrap\Security\NumericToAlphaIdConverter;
+use VarunS\Flytrap\Security\NumberAlphaIdConverter;
 
 require "../Computable.php";
 use Computable;
@@ -11,14 +11,14 @@ class MoveAudioOperation implements Computable {
     protected int $fileId;
     protected string $newFolderId;
     protected int $convert;
-    protected NumericToAlphaIdConverter $alphaIdConversion;
+    protected $alphaIdConversion;
     protected DBChecker $dbHandler;
 
     public function __construct($fileId, $newFolderId, $convert = 0, $dbHandler) {
         $this->fileId = $fileId;
         $this->newFolderId = $newFolderId;
         $this->convert = $convert;
-        $this->alphaIdConversion = new NumericToAlphaIdConverter();
+        $this->alphaIdConversion = new NumberAlphaIdConverter();
         $this->dbHandler = $dbHandler;
     }
 
