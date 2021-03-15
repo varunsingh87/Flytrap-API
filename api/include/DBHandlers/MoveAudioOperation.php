@@ -47,40 +47,45 @@ class MoveAudioOperation implements Computable {
             ];
         }
 
-        if (mysqli_affected_rows($this->conn) == 1) {
+        if ($this->dbHandler->lastQueryWasSuccessful()) {
             return [
                 "statusCode" => 204
             ];
         } else {
-
+            return [
+                "statusCode" => 500,
+                "error" => [
+                    "message" => "An unknown server error occurred and the audio was not moved"
+                ]
+            ];
         }
     }
 
     private function convertToAlphaId() {
         switch ($this->convert) {
             case '1':
-                $fileAlpha = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
+                $fileNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
                 break;
             case '2':
-                $fileAlpha = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
-                $newFolderAlpha = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
+                $fileNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
+                $newFolderNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
                 break;
             case '3':
-                $newFolderAlpha = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
+                $newFolderNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
                 break;
             default:
                 // If the query parameter is 0, it indicates going to the root directory
-                $newFolderAlpha = $this->newFolderId != 0 ? $this->newFolderId : "NULL"; 
+                $newFolderNumericId = $this->newFolderId != 0 ? $this->newFolderId : "NULL"; 
         }
 
         return [
-            "folder" => $newFolderAlpha,
-            "file" => $fileAlpha
+            "folder" => $newFolderNumericId,
+            "file" => $fileNumericId
         ];
     }
 
-    private function selectAudioFile($fileAlpha) {
-        return $this->dbHandler->executeQuery("SELECT user_id FROM audio_files WHERE id = " . $fileAlpha);
+    private function selectAudioFile($fileNumericId) {
+        return $this->dbHandler->executeQuery("SELECT user_id FROM audio_files WHERE id = " . $fileNumericId);
     }
 
     private function checkAudioFileExists($result) {

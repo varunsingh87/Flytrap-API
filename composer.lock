@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bb98d3fa5821dc5af4909909f500f813",
+    "content-hash": "3b7f808b72379d26e6f9c87b538c6fc5",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -1789,16 +1789,16 @@
         },
         {
             "name": "varuns/php-sleep",
-            "version": "v1.1.0-alpha",
+            "version": "v1.3.0-alpha",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Borumer/php-sleep.git",
-                "reference": "a6ba71ab1508021a4870efc25e1314eacd79eba1"
+                "reference": "b21ee07e63a42122b4bff89770fb0a469b1d193d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Borumer/php-sleep/zipball/a6ba71ab1508021a4870efc25e1314eacd79eba1",
-                "reference": "a6ba71ab1508021a4870efc25e1314eacd79eba1",
+                "url": "https://api.github.com/repos/Borumer/php-sleep/zipball/b21ee07e63a42122b4bff89770fb0a469b1d193d",
+                "reference": "b21ee07e63a42122b4bff89770fb0a469b1d193d",
                 "shasum": ""
             },
             "require-dev": {
@@ -1824,9 +1824,9 @@
             "description": "An object-oriented PHP library for a simple REST service",
             "support": {
                 "issues": "https://github.com/Borumer/php-sleep/issues",
-                "source": "https://github.com/Borumer/php-sleep/tree/v1.1.0-alpha"
+                "source": "https://github.com/Borumer/php-sleep/tree/v1.3.0-alpha"
             },
-            "time": "2021-03-15T02:23:19+00:00"
+            "time": "2021-03-15T15:59:33+00:00"
         }
     ],
     "packages-dev": [],
