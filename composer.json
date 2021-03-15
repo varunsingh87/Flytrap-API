@@ -4,7 +4,7 @@
     "type": "project",
     "require": {
         "icanhazstring/composer-unused": "^0.7.5",
-        "varuns/php-sleep": "^1.1.0-alpha"
+        "varuns/php-sleep": ">=1.0.0-alpha"
     },
     "license": "MIT",
     "authors": [
