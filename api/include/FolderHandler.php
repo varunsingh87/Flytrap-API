@@ -20,8 +20,12 @@ class FolderHandler {
     public function getFolder() {
         $query = "SELECT * FROM folders WHERE user_id = " . $this->dbChecker->userId . " AND parent_id ";
         
-        if ($this->folderId == NULL)
-        $audioFiles = $this->dbChecker->executeQuery();
+        if (is_numeric($query)) 
+            $query .= "= " . $this->folderId;
+        else
+            $query .= "IS NULL";
+
+        $audioFiles = $this->dbChecker->executeQuery($query);
 
         if (!((bool) $audioFiles)) {
             return [
