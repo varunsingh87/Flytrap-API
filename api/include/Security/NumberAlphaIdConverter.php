@@ -122,7 +122,7 @@ class NumberAlphaIdConverter
      *
      * @return mixed string or long
     */
-    public function convertNumericIdToAlphaId($in)
+    public function convertNumericIdToAlphaId($in) : string
     {
         $out = '';
 
