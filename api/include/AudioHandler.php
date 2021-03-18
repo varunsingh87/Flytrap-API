@@ -1,10 +1,10 @@
 <?php
 
-namespace VarunS\Flytrap\DBHandlers;
+namespace Flytrap\DBHandlers;
 
-use VarunS\Flytrap\FilterType;
-use VarunS\Flytrap\Security\NumberAlphaIdConverter;
-use VarunS\Flytrap\EndpointResponse;
+use Flytrap\FilterType;
+use Flytrap\Security\NumberAlphaIdConverter;
+use Flytrap\EndpointResponse;
 
 class AudioHandler
 {
