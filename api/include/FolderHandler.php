@@ -18,17 +18,10 @@ class FolderHandler {
     }
 
     public function getFolder() {
-        if ($this->folderId == NULL) {
-            return [
-                "statusCode" => 500,
-                "error" => [
-                    "message" => "A server error occurred",
-                    "developer" => "The folder id was not specified by the API endpoint"
-                ]
-            ];
-        }
-
-        $audioFiles = $this->dbChecker->executeQuery("SELECT * FROM folders WHERE user_id = " . $this->dbChecker->userId . " AND id = " . $this->folderId);
+        $query = "SELECT * FROM folders WHERE user_id = " . $this->dbChecker->userId . " AND parent_id ";
+        
+        if ($this->folderId == NULL)
+        $audioFiles = $this->dbChecker->executeQuery();
 
         if (!((bool) $audioFiles)) {
             return [
