@@ -1,6 +1,6 @@
 <?php
 
-namespace VarunS\Flytrap\DBHandlers;
+namespace Flytrap\DBHandlers;
 
 use VarunS\PHPSleep\DBHandlers\UserKnownHandler;
 

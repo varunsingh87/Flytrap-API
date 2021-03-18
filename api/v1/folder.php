@@ -9,7 +9,7 @@ header("Access-Control-Allow-Headers: Authorization,authorization");
 header("Access-Control-Expose-Headers: Authorization,authorization");
 header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"]);
 header("Access-Control-Allow-Credentials: true");
-SimpleRest::handleRequestMethodValidation("GET", "OPTIONS");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 
 $headers = apache_request_headers();
 

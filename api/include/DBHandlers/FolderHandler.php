@@ -1,8 +1,9 @@
 <?php 
 
-namespace VarunS\Flytrap\DBHandlers;
+namespace Flytrap\DBHandlers;
 
-use VarunS\Flytrap\EndpointResponse;
+use Flytrap\EndpointResponse;
+use Flytrap\DBHandlers\UserChecker;
 
 class FolderHandler {
     protected UserChecker $dbChecker;

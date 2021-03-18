@@ -1,6 +1,6 @@
 <?php 
 
-namespace VarunS\Flytrap;
+namespace Flytrap;
 
 class EndpointResponse {
     protected $data;

@@ -1,6 +1,6 @@
 <?php 
 
-namespace VarunS\Flytrap\DBHandlers;
+namespace Flytrap\DBHandlers;
 
 class Config {
     function __construct($user, $pass, $host, $name) {

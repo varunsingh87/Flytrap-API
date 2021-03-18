@@ -1,6 +1,6 @@
 <?php
 
-namespace VarunS\Flytrap\Security;
+namespace Flytrap\Security;
 
 class NumberAlphaIdConverter
 {
