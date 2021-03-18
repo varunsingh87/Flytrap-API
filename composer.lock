@@ -1789,16 +1789,16 @@
         },
         {
             "name": "varuns/php-sleep",
-            "version": "v1.3.0-alpha",
+            "version": "v1.3.1-alpha",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Borumer/php-sleep.git",
-                "reference": "b21ee07e63a42122b4bff89770fb0a469b1d193d"
+                "reference": "8dab4396e45b7c5d85b7b92fd20e4f94b66476ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Borumer/php-sleep/zipball/b21ee07e63a42122b4bff89770fb0a469b1d193d",
-                "reference": "b21ee07e63a42122b4bff89770fb0a469b1d193d",
+                "url": "https://api.github.com/repos/Borumer/php-sleep/zipball/8dab4396e45b7c5d85b7b92fd20e4f94b66476ca",
+                "reference": "8dab4396e45b7c5d85b7b92fd20e4f94b66476ca",
                 "shasum": ""
             },
             "require-dev": {
@@ -1824,9 +1824,9 @@
             "description": "An object-oriented PHP library for a simple REST service",
             "support": {
                 "issues": "https://github.com/Borumer/php-sleep/issues",
-                "source": "https://github.com/Borumer/php-sleep/tree/v1.3.0-alpha"
+                "source": "https://github.com/Borumer/php-sleep/tree/v.1.3.1"
             },
-            "time": "2021-03-15T15:59:33+00:00"
+            "time": "2021-03-18T22:45:12+00:00"
         }
     ],
     "packages-dev": [],
