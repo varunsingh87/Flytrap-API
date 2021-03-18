@@ -18,7 +18,7 @@ class MoveAudioOperation implements Computable {
         $this->fileId = $fileId;
         $this->newFolderId = $newFolderId;
         $this->convert = $convert;
-        $this->alphaIdConversion = new NumberAlphaIdConverter();
+        $this->alphaIdConversion = new NumberAlphaIdConverter(10);
         $this->dbHandler = $dbHandler;
     }
 
