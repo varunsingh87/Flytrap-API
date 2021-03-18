@@ -1,11 +1,9 @@
 <?php
 
-namespace VarunS\Flytrap\DBHandlers;
+namespace Flytrap\DBHandlers;
 
-use VarunS\Flytrap\Security\NumberAlphaIdConverter;
-
-require "../Computable.php";
-use Computable;
+use Flytrap\Security\NumberAlphaIdConverter;
+use Flytrap\Computable;
 
 class MoveAudioOperation implements Computable {
     protected int $fileId;
