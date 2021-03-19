@@ -35,14 +35,14 @@ class FolderHandler {
         if ($exists) {
             $userOwnsFolder = mysqli_fetch_array($result)[0];
             if ($userOwnsFolder != $this->dbChecker->userId) {
-                return EndpointResponse::outputSpecificErrorMessage('403', 'You do not have permission to access that folder');
+                return EndpointResponse::outputSpecificErrorMessage(401, 'You do not have permission to access that folder');
             } else {
                 return true;
             }
         }
         // Speed up request by skipping instance method queries if the folder does not exist 
         else {
-            return EndpointResponse::outputSpecificErrorMessage('404', 'That folder does not exist');
+            return EndpointResponse::outputSpecificErrorMessage(404, 'That folder does not exist');
         }
 
     }

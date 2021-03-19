@@ -30,7 +30,7 @@ class MoveAudioOperation implements Computable {
                 $this->updateAudioFileLocation($alphaIds["file"], $alphaIds["folder"]);
             else {
                 return [
-                    "statusCode" => 403,
+                    "statusCode" => 401,
                     "error" => [
                         "message" => "The audio was not moved because you do not own that audio file"
                     ]
