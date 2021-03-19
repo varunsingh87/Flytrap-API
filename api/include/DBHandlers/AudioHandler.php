@@ -2,6 +2,8 @@
 
 namespace Flytrap\DBHandlers;
 
+use Flytrap\FilterType;
+use Flytrap\Security\NumberAlphaIdConverter;
 use Flytrap\EndpointResponse;
 
 class AudioHandler
@@ -19,8 +21,7 @@ class AudioHandler
         $audioFile = $this->dbChecker->executeQuery("SELECT * FROM audio_files WHERE id = " . $this->audioId);
         $audioFile = mysqli_fetch_assoc($audioFile);
 
-        $response = new EndpointResponse($audioFile);
-        return $response;
+        return EndpointResponse::outputSuccessWithData($audioFile);
     }
 
     public function deleteAudio()
@@ -28,7 +29,7 @@ class AudioHandler
         $this->dbChecker->executeQuery("DELETE FROM audio_files WHERE user_id = " . $this->dbChecker->userId . " AND id = " . $this->audioId);
 
         if ($this->dbChecker->lastQueryWasSuccessful()) {
-            return EndpointResponse::outputSuccessWithoutData();
+            EndpointResponse::outputSuccessWithoutData();
         } else {
             return [
                 "statusCode" => 404,
