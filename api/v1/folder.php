@@ -21,7 +21,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
         $folderHandler->setFolderId($_GET['folder_id']);
         $response = $folderHandler->getFolderAudioFiles();
-        SimpleRest::setHttpHeaders($response);
+        SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);
         break;
 }
