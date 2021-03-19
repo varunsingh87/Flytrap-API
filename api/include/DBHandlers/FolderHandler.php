@@ -20,7 +20,14 @@ class FolderHandler {
     }
     
     private function checkUserOwnsFolder() {
-        $result = $this->dbChecker->executeQuery("SELECT user_id FROM folders WHERE id = " . $this->folderId);
+        if (isset($this->folderId))
+            $result = $this->dbChecker->executeQuery(
+                "SELECT user_id FROM folders WHERE id = " . $this->folderId
+            );
+        else
+            // Prevent future errors and return successful validation because all users have a root folder
+            return true;
+        
         $exists = mysqli_num_rows($result) == 1;
 
         // Only give access to folder if the user owns it 
@@ -29,6 +36,8 @@ class FolderHandler {
             $userOwnsFolder = mysqli_fetch_array($result)[0];
             if ($userOwnsFolder != $this->dbChecker->userId) {
                 return EndpointResponse::outputSpecificErrorMessage('403', 'You do not have permission to access that folder');
+            } else {
+                return true;
             }
         }
         // Speed up request by skipping instance method queries if the folder does not exist 
