@@ -50,8 +50,7 @@ class FilterAudioOperation {
 
     private function outputEndpointResponseFromQuery($query) {
         $data = $this->getFilteredDataAndAlphaId($query);
-        $response = new EndpointResponse($data);
-        return $response->outputSuccessWithData();
+        return EndpointResponse::outputSuccessWithData($data);
     }
 
     private function getFilteredDataAndAlphaId($q)

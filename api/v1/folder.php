@@ -20,8 +20,8 @@ $folderHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
         $folderHandler->setFolderId($_GET['folder_id']);
-        $response = $folderHandler->getFolder();
-        SimpleRest::setHttpHeaders($response["statusCode"]);
+        $response = $folderHandler->getFolderAudioFiles();
+        SimpleRest::setHttpHeaders($response);
         echo json_encode($response);
         break;
 }

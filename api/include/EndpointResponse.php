@@ -1,34 +1,47 @@
-<?php 
+<?php
 
 namespace Flytrap;
 
-class EndpointResponse {
-    protected $data;
-
-    public function __construct($data = []) {
-        $this->data = $data;
-    }
-
-    public function outputSuccessWithData() {
+class EndpointResponse
+{
+    public static function outputSuccessWithData($data)
+    {
         return [
             "statusCode" => 200,
-            "data" => $this->data
+            "data" => $data
         ];
     }
 
-    public function outputSuccessWithoutData() {
+    public static function outputSuccessWithoutData()
+    {
         return [
             "statusCode" => 201
         ];
     }
 
-    public function outputGenericError($extraMsg = '') {
-        return [
-            "statusCode" => 500,
+    public static function outputSpecificErrorMessage(int $statusCode, string $errorMessage, $query = NULL)
+    {
+        if ($statusCode >= 200 && $statusCode < 300) {
+            throw new \InvalidArgumentException("The status code must be erroneous");
+        }
+
+        $response = [
+            "statusCode" => $statusCode,
             "error" => [
-                "message" => "A system error occurred$extraMsg"
+                "message" => $errorMessage,
             ]
         ];
+
+        if (isset($response["query"])) {
+            $response["query"] = $query;
+        }
+
+        return $response;
+    }
+
+    public static function outputGenericError($extraMsg = '', $query = NULL)
+    {
+        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred' . $extraMsg, $query);
     }
 }
 
