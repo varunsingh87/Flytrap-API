@@ -2,8 +2,6 @@
 
 namespace Flytrap\DBHandlers;
 
-use Flytrap\FilterType;
-use Flytrap\Security\NumberAlphaIdConverter;
 use Flytrap\EndpointResponse;
 
 class AudioHandler
@@ -11,9 +9,16 @@ class AudioHandler
     protected UserChecker $dbChecker;
     protected $audioId;
 
-    function __construct($userApiKey, $audioId)
+    function __construct($userApiKey)
     {
         $this->dbChecker = new UserChecker($userApiKey);
+    }
+
+    /**
+     * Setter method for $audioId
+     * so it can be retrieved after instantiation through different request methods
+     */
+    public function setAudioId($audioId) {
         $this->audioId = $audioId;
     }
 
