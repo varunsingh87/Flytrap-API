@@ -1,11 +1,13 @@
-<?php 
+<?php
+
 
 namespace Flytrap\DBHandlers;
 
 use Flytrap\EndpointResponse;
 use Flytrap\DBHandlers\UserChecker;
 
-class FolderHandler {
+class FolderHandler
+{
     protected UserChecker $dbChecker;
     protected $folderId;
 
@@ -14,12 +16,14 @@ class FolderHandler {
         $this->dbChecker = new UserChecker($userApiKey);
         $this->checkUserOwnsFolder();
     }
-    
-    public function setFolderId($folderId) {
+
+    public function setFolderId($folderId)
+    {
         $this->folderId = $folderId;
     }
-    
-    private function checkUserOwnsFolder() {
+
+    private function checkUserOwnsFolder()
+    {
         if (isset($this->folderId))
             $result = $this->dbChecker->executeQuery(
                 "SELECT user_id FROM folders WHERE id = " . $this->folderId
@@ -27,7 +31,7 @@ class FolderHandler {
         else
             // Prevent future errors and return successful validation because all users have a root folder
             return true;
-        
+
         $exists = mysqli_num_rows($result) == 1;
 
         // Only give access to folder if the user owns it 
@@ -36,7 +40,8 @@ class FolderHandler {
             $userOwnsFolder = mysqli_fetch_array($result)[0];
             if ($userOwnsFolder != $this->dbChecker->userId) {
                 return EndpointResponse::outputSpecificErrorMessage(401, 'You do not have permission to access that folder');
-            } else {
+            }
+            else {
                 return true;
             }
         }
@@ -47,21 +52,31 @@ class FolderHandler {
 
     }
 
-    public function getFolderAudioFiles() {
+    public function getFolderAudioFiles()
+    {
         $query = "SELECT * FROM audio_files WHERE folder_id ";
-        
-        if (is_numeric($query)) 
+
+        if (is_numeric($query))
             $query .= "= " . $this->folderId;
         else
             $query .= "IS NULL";
 
         $audioFiles = $this->dbChecker->executeQuery($query);
-        
-        if (!!!$audioFiles) return EndpointResponse::outputGenericError();
-        
-        $audioFiles = mysqli_fetch_all($audioFiles, MYSQLI_ASSOC);
 
-        return EndpointResponse::outputSuccessWithData($audioFiles);
+        if (!!!$audioFiles)
+            return EndpointResponse::outputGenericError();
+
+        $toAlphaId = new \Flytrap\Security\NumberAlphaIdConverter();
+        $audioFileDataWithAlphaIds = [];
+        while ($audioFile = mysqli_fetch_array($audioFiles, MYSQLI_ASSOC)) {
+            // Add the alpha id to each array
+            $audioFile['alphaId'] = $toAlphaId->convertNumericIdToAlphaId($audioFile['id']);
+
+            // Push the combined array to new array for output simplicity
+            array_push($audioFileDataWithAlphaIds, $audioFile);
+        }
+
+        return EndpointResponse::outputSuccessWithData($audioFileDataWithAlphaIds);
     }
 }
 
