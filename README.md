@@ -1,11 +1,11 @@
 # Flytrap API
 
-The Flytrap API is the new REST API for [Flytrap](https://audio.bforborum.com). Flytrap is an audio cloud service. You make HTTP requests to [Flytrap API endpoints](https://api.audio.bforborum.com) and receive a JSON response, documented on the [Borum Developer Docs](https://developer.bforborum.com/Flytrap/Docs). 
+The Flytrap API is the new REST API for [Flytrap](https://audio.borumtech.com). Flytrap is an audio cloud service. You make HTTP requests to [Flytrap API endpoints](https://api.audio.borumtech.com) and receive a JSON response, documented on the [Borum Developer Docs](https://developer.borumtech.com/Flytrap/Docs). 
 
 ## Usage
 
-To use the Flytrap API, go to https://api.audio.bforborum.com.
-The documentation is on the [Borum Developer Docs](https://developer.bforborum.com/Flytrap/Docs)
+To use the Flytrap API, go to https://api.audio.borumtech.com.
+The documentation is on the [Borum Developer Docs](https://developer.borumtech.com/Flytrap/Docs)
 
 ## Installation (Prerequisites)
 
