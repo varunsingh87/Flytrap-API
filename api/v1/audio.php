@@ -9,6 +9,7 @@ use VarunS\PHPSleep\SimpleRest;
 header("Access-Control-Allow-Headers: Authorization,authorization");
 header("Access-Control-Expose-Headers: Authorization,authorization");
 header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"] . '');
 SimpleRest::handleRequestMethodValidation("GET", "POST", "PUT", "DELETE", "OPTIONS");
 
 $headers = apache_request_headers();
@@ -26,6 +27,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         break;
     case 'POST':
         $dbHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers["authorization"]));
+        SimpleRest::handlePostParameterValidation("name");
         $response = ["statusCode" => 201];
         SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);
@@ -41,6 +43,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'DELETE':
         parse_str(file_get_contents("php://input"), $GLOBALS["_{DELETE}"]);
         $dbHandler->setAudioId($GLOBALS["_{DELETE}"]['audio_id']);
+
+        SimpleRest::handleDeleteParameterValidation("audio_id");
+
         $response = $dbHandler->deleteAudio();
         SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);

@@ -66,7 +66,7 @@ class FolderHandler
         if (!!!$audioFiles)
             return EndpointResponse::outputGenericError();
 
-        $toAlphaId = new \Flytrap\Security\NumberAlphaIdConverter();
+        $toAlphaId = new \Flytrap\Security\NumberAlphaIdConverter(10);
         $audioFileDataWithAlphaIds = [];
         while ($audioFile = mysqli_fetch_array($audioFiles, MYSQLI_ASSOC)) {
             // Add the alpha id to each array
