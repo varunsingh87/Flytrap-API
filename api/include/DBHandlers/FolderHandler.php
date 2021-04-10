@@ -18,22 +18,23 @@ class FolderHandler
     public function __construct($userApiKey)
     {
         $this->dbChecker = new UserChecker($userApiKey);
-        $this->checkUserOwnsFolder();
         $this->toAlphaId = new NumberAlphaIdConverter(10);
     }
 
     public function setFolderAlphaId($folderAlphaId)
     {
-        $this->folderAlphaId = $folderAlphaId;
+        $this->folderAlphaId = $folderAlphaId ?? 0;
         $this->folderId = $this->toAlphaId->convertAlphaIdToNumericId($folderAlphaId);
+        $this->checkUserOwnsFolder();
     }
 
     private function checkUserOwnsFolder()
     {
-        if (isset($this->folderAlphaId))
+        if (isset($this->folderAlphaId)) {
             $result = $this->dbChecker->executeQuery(
                 "SELECT user_id FROM folders WHERE id = " . $this->folderId
             );
+        }
         else
             // Prevent future errors and return successful validation because all users have a root folder
             return true;
@@ -46,8 +47,7 @@ class FolderHandler
             $userOwnsFolder = mysqli_fetch_array($result)[0];
             if ($userOwnsFolder != $this->dbChecker->userId) {
                 return EndpointResponse::outputSpecificErrorMessage(401, 'You do not have permission to access that folder');
-            }
-            else {
+            } else {
                 return true;
             }
         }
@@ -58,9 +58,10 @@ class FolderHandler
 
     }
 
-    public function getFolderInfo() {
+    public function getFolderInfo()
+    {
         $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->folderId;
-        
+
         $folderInfo = $this->dbChecker->executeQuery($query);
 
         if (mysqli_num_rows($folderInfo) != 1) {
