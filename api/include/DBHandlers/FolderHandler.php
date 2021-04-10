@@ -62,7 +62,7 @@ class FolderHandler
     }
 
     public function getFolderInfo() {
-        $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->folderId;
+        $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->computeFolderId();
         
         $folderInfo = $this->dbChecker->executeQuery($query);
 
