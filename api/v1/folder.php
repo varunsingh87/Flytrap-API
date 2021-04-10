@@ -19,7 +19,7 @@ $folderHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        $folderHandler->setFolderId($_GET['folder_id']);
+        $folderHandler->setFolderAlphaId($_GET['folder_id']);
 
         $response = [
             "root" => $folderHandler->getFolderInfo()

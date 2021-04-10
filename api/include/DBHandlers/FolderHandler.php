@@ -11,8 +11,9 @@ use Flytrap\Security\NumberAlphaIdConverter;
 class FolderHandler
 {
     protected UserChecker $dbChecker;
-    protected $folderId;
     protected NumberAlphaIdConverter $toAlphaId;
+    protected $folderAlphaId;
+    protected $folderId;
 
     public function __construct($userApiKey)
     {
@@ -21,14 +22,15 @@ class FolderHandler
         $this->toAlphaId = new NumberAlphaIdConverter(10);
     }
 
-    public function setFolderId($folderId)
+    public function setFolderAlphaId($folderAlphaId)
     {
-        $this->folderId = $folderId;
+        $this->folderAlphaId = $folderAlphaId;
+        $this->folderId = $this->toAlphaId->convertAlphaIdToNumericId($folderAlphaId);
     }
 
     private function checkUserOwnsFolder()
     {
-        if (isset($this->folderId))
+        if (isset($this->folderAlphaId))
             $result = $this->dbChecker->executeQuery(
                 "SELECT user_id FROM folders WHERE id = " . $this->folderId
             );
@@ -56,13 +58,8 @@ class FolderHandler
 
     }
 
-    private function computeFolderId()
-    {
-        return is_numeric($this->folderId) ? $this->folderId : 0;
-    }
-
     public function getFolderInfo() {
-        $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->computeFolderId();
+        $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->folderId;
         
         $folderInfo = $this->dbChecker->executeQuery($query);
 
@@ -77,9 +74,7 @@ class FolderHandler
 
     public function getFolderAudioFiles()
     {
-        $query = "SELECT * FROM audio_files WHERE folder_id = ";
-
-        $query .= $this->computeFolderId();
+        $query = "SELECT * FROM audio_files WHERE folder_id = " . $this->folderId;
 
         $audioFiles = $this->dbChecker->executeQuery($query);
 
@@ -100,9 +95,7 @@ class FolderHandler
 
     public function getFolderSubdirectories()
     {
-        $query = "SELECT id, folder_name, time_created FROM folders WHERE parent_id = ";
-
-        $query .= $this->computeFolderId();
+        $query = "SELECT id, folder_name, time_created FROM folders WHERE parent_id = " . $this->folderId;
 
         $subdirs = $this->dbChecker->executeQuery($query);
 
