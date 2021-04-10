@@ -20,9 +20,49 @@ $folderHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
         $folderHandler->setFolderId($_GET['folder_id']);
-        $response = $folderHandler->getFolderAudioFiles();
+
+        $response = [];
+
+        $excludeAudio = $_GET['exclude_audio'] ?? false;
+        $excludeFolder = $_GET['exclude_folder'] ?? false;
+
+        switch (true) {
+            // Both
+            case !$excludeAudio && !$excludeFolder:
+                $response['folder'] = $folderHandler->getFolderSubdirectories();
+                $response['audio'] = $folderHandler->getFolderAudioFiles();
+
+                if ($response['folder']['statusCode'] === $response['audio']['statusCode']) {
+                    $response['statusCode'] = $response['folder']['statusCode'];
+                } else {
+                    $response['statusCode'] = 200;
+                }
+
+                break;
+            
+            // Folder ONLY
+            case $excludeAudio && !$excludeFolder:
+                $response['folder'] = $folderHandler->getFolderSubdirectories();
+                $response["statusCode"] = $response['folder']['statusCode'];
+                break;
+            
+            // Audio ONLY
+            case $excludeFolder && !$excludeAudio:
+                $response['audio'] = $folderHandler->getFolderAudioFiles();
+                $response["statusCode"] = $response['audio']['statusCode'];
+                break;
+            
+            // Neither
+            default:
+                $response["statusCode"] = 201;
+                SimpleRest::setHttpHeaders($response["statusCode"]);
+                break;
+
+        }
+
         SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);
+
         break;
 }
 

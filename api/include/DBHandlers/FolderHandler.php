@@ -6,15 +6,19 @@ namespace Flytrap\DBHandlers;
 use Flytrap\EndpointResponse;
 use Flytrap\DBHandlers\UserChecker;
 
+use Flytrap\Security\NumberAlphaIdConverter;
+
 class FolderHandler
 {
     protected UserChecker $dbChecker;
     protected $folderId;
+    protected NumberAlphaIdConverter $toAlphaId;
 
     public function __construct($userApiKey)
     {
         $this->dbChecker = new UserChecker($userApiKey);
         $this->checkUserOwnsFolder();
+        $this->toAlphaId = new NumberAlphaIdConverter(10);
     }
 
     public function setFolderId($folderId)
@@ -52,31 +56,56 @@ class FolderHandler
 
     }
 
+    private function computeFolderId()
+    {
+        return is_numeric($this->folderId) ? $this->folderId : 0;
+    }
+
     public function getFolderAudioFiles()
     {
         $query = "SELECT * FROM audio_files WHERE folder_id = ";
 
-        if (is_numeric($this->folderId))
-            $query .= $this->folderId;
-        else
-            $query .= "0";
-            
+        $query .= $this->computeFolderId();
+
         $audioFiles = $this->dbChecker->executeQuery($query);
 
         if (!!!$audioFiles)
             return EndpointResponse::outputGenericError();
 
-        $toAlphaId = new \Flytrap\Security\NumberAlphaIdConverter(10);
         $audioFileDataWithAlphaIds = [];
         while ($audioFile = mysqli_fetch_array($audioFiles, MYSQLI_ASSOC)) {
             // Add the alpha id to each array
-            $audioFile['alphaId'] = $toAlphaId->convertNumericIdToAlphaId($audioFile['id']);
+            $audioFile['alphaId'] = $this->toAlphaId->convertNumericIdToAlphaId($audioFile['id']);
 
             // Push the combined array to new array for output simplicity
             array_push($audioFileDataWithAlphaIds, $audioFile);
         }
 
         return EndpointResponse::outputSuccessWithData($audioFileDataWithAlphaIds);
+    }
+
+    public function getFolderSubdirectories()
+    {
+        $query = "SELECT id, folder_name, time_created FROM folders WHERE parent_id = " . $this->folderId;
+
+        $query .= $this->computeFolderId();
+
+        $subdirs = $this->dbChecker->executeQuery($query);
+
+        if (!!!$subdirs) {
+            return EndpointResponse::outputGenericError();
+        }
+
+        $folderDataWithAlphaIds = [];
+        while ($folder = mysqli_fetch_array($subdirs, MYSQLI_ASSOC)) {
+            // Add the alpha id to each array
+            $folder['alphaId'] = $this->toAlphaId->convertNumericIdToAlphaId($folder['id']);
+
+            // Push the combined array to new array to merge outputs
+            array_push($folderDataWithAlphaIds, $folder);
+        }
+
+        return EndpointResponse::outputSuccessWithData($folderDataWithAlphaIds);
     }
 }
 
