@@ -28,7 +28,7 @@ class NumberAlphaIdConverter
             $out = $out + strpos($this->index, substr($in, $t, 1)) * $bcp;
         }
 
-        if (is_numeric($this->pad_up)) {
+        if (is_numeric($padUpPos)) {
             $padUpPos--;
 
             if ($padUpPos > 0) {
