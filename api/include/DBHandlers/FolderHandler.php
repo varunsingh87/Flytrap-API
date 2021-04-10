@@ -54,13 +54,13 @@ class FolderHandler
 
     public function getFolderAudioFiles()
     {
-        $query = "SELECT * FROM audio_files WHERE folder_id ";
+        $query = "SELECT * FROM audio_files WHERE folder_id = ";
 
-        if (is_numeric($query))
-            $query .= "= " . $this->folderId;
+        if (is_numeric($this->folderId))
+            $query .= $this->folderId;
         else
-            $query .= "IS NULL";
-
+            $query .= "0";
+            
         $audioFiles = $this->dbChecker->executeQuery($query);
 
         if (!!!$audioFiles)
