@@ -100,7 +100,7 @@ class FolderHandler
 
     public function getFolderSubdirectories()
     {
-        $query = "SELECT id, folder_name, time_created FROM folders WHERE parent_id = " . $this->folderId;
+        $query = "SELECT id, folder_name, time_created FROM folders WHERE parent_id = ";
 
         $query .= $this->computeFolderId();
 
