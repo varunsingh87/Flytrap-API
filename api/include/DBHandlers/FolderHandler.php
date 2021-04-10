@@ -55,8 +55,14 @@ class FolderHandler
 
     public function getFolderInfo()
     {
-        $query = "SELECT id, folder_name, parent_id, time_created 
-        FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
+        $query="";
+        if ($this->folderAlphaId == 0) {
+            $query = "SELECT id, folder_name, parent_id, time_created FROM folders 
+            WHERE parent_id = 0 AND user_id = " . $this->userId;
+        } else if (!is_numeric($this->folderAlphaId)) {
+            $query = "SELECT id, folder_name, parent_id, time_created 
+            FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
+        }
 
         $folderInfo = $this->dbChecker->executeQuery($query);
 
@@ -71,7 +77,9 @@ class FolderHandler
 
     public function getFolderAudioFiles()
     {
-        if ($this->folderAlphaId === 0) {
+        $query="";
+
+        if ($this->folderAlphaId == 0) {
             $query = "SELECT * FROM audio_files WHERE folder_id = 0";
         } else if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT * FROM audio_files 
@@ -91,7 +99,8 @@ class FolderHandler
 
     public function getFolderSubdirectories()
     {
-        if ($this->folderAlphaId === 0) {
+        $query = "";
+        if ($this->folderAlphaId == 0) {
             $query = "SELECT id, alpha_id, folder_name, time_created FROM folders WHERE parent_id = 0";
         } else if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
