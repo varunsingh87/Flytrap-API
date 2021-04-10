@@ -21,7 +21,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
         $folderHandler->setFolderId($_GET['folder_id']);
 
-        $response = [];
+        $response = [
+            "root" => $folderHandler->getFolderInfo()
+        ];
 
         $excludeAudio = $_GET['exclude_audio'] ?? false;
         $excludeFolder = $_GET['exclude_folder'] ?? false;

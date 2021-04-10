@@ -61,6 +61,20 @@ class FolderHandler
         return is_numeric($this->folderId) ? $this->folderId : 0;
     }
 
+    public function getFolderInfo() {
+        $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->folderId;
+        
+        $folderInfo = $this->dbChecker->executeQuery($query);
+
+        if (mysqli_num_rows($folderInfo) != 1) {
+            return EndpointResponse::outputGenericError();
+        }
+
+        $folderInfo = mysqli_fetch_assoc($folderInfo);
+
+        return EndpointResponse::outputSuccessWithData($folderInfo);
+    }
+
     public function getFolderAudioFiles()
     {
         $query = "SELECT * FROM audio_files WHERE folder_id = ";
