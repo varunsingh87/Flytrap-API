@@ -13,7 +13,6 @@ class FolderHandler
     protected UserChecker $dbChecker;
     protected NumberAlphaIdConverter $toAlphaId;
     protected $folderAlphaId;
-    protected $folderId;
 
     public function __construct($userApiKey)
     {
@@ -21,10 +20,9 @@ class FolderHandler
         $this->toAlphaId = new NumberAlphaIdConverter(10);
     }
 
-    public function setFolderAlphaId($folderAlphaId)
+    public function setFolderAlphaId($folderAlphaId = 0)
     {
-        $this->folderAlphaId = $folderAlphaId ?? 0;
-        $this->folderId = $this->toAlphaId->convertAlphaIdToNumericId($folderAlphaId);
+        $this->folderAlphaId = $folderAlphaId;
         $this->checkUserOwnsFolder();
     }
 
@@ -32,7 +30,7 @@ class FolderHandler
     {
         if (isset($this->folderAlphaId)) {
             $result = $this->dbChecker->executeQuery(
-                "SELECT user_id FROM folders WHERE id = " . $this->folderId
+                "SELECT user_id FROM folders WHERE alpha_id = " . $this->folderAlphaId
             );
         }
         else
@@ -47,7 +45,8 @@ class FolderHandler
             $userOwnsFolder = mysqli_fetch_array($result)[0];
             if ($userOwnsFolder != $this->dbChecker->userId) {
                 return EndpointResponse::outputSpecificErrorMessage(401, 'You do not have permission to access that folder');
-            } else {
+            }
+            else {
                 return true;
             }
         }
@@ -60,7 +59,7 @@ class FolderHandler
 
     public function getFolderInfo()
     {
-        $query = "SELECT id, folder_name, time_created FROM folders WHERE id = " . $this->folderId;
+        $query = "SELECT id, folder_name, parent_id, time_created FROM folders WHERE id = " . $this->folderAlphaId;
 
         $folderInfo = $this->dbChecker->executeQuery($query);
 
@@ -75,28 +74,26 @@ class FolderHandler
 
     public function getFolderAudioFiles()
     {
-        $query = "SELECT * FROM audio_files WHERE folder_id = " . $this->folderId;
+        $query = "SELECT * FROM audio_files 
+        JOIN folders ON folders.id = audio_files.folder_id 
+        WHERE folders.alpha_id = " . $this->folderAlphaId;
 
         $audioFiles = $this->dbChecker->executeQuery($query);
 
         if (!!!$audioFiles)
             return EndpointResponse::outputGenericError();
 
-        $audioFileDataWithAlphaIds = [];
-        while ($audioFile = mysqli_fetch_array($audioFiles, MYSQLI_ASSOC)) {
-            // Add the alpha id to each array
-            $audioFile['alphaId'] = $this->toAlphaId->convertNumericIdToAlphaId($audioFile['id']);
+        $audioFiles = mysqli_fetch_all($audioFiles, MYSQLI_ASSOC);
 
-            // Push the combined array to new array for output simplicity
-            array_push($audioFileDataWithAlphaIds, $audioFile);
-        }
-
-        return EndpointResponse::outputSuccessWithData($audioFileDataWithAlphaIds);
+        return EndpointResponse::outputSuccessWithData($audioFiles);
     }
 
     public function getFolderSubdirectories()
     {
-        $query = "SELECT id, folder_name, time_created FROM folders WHERE parent_id = " . $this->folderId;
+        $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
+        folders.folder_name AS folder_name, folders.time_created AS time_created FROM folders 
+        JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
+        WHERE parent_folders.alpha_id = " . $this->folderAlphaId;
 
         $subdirs = $this->dbChecker->executeQuery($query);
 
@@ -104,16 +101,9 @@ class FolderHandler
             return EndpointResponse::outputGenericError();
         }
 
-        $folderDataWithAlphaIds = [];
-        while ($folder = mysqli_fetch_array($subdirs, MYSQLI_ASSOC)) {
-            // Add the alpha id to each array
-            $folder['alphaId'] = $this->toAlphaId->convertNumericIdToAlphaId($folder['id']);
+        $subdirs = mysqli_fetch_all($subdirs, MYSQLI_ASSOC);
 
-            // Push the combined array to new array to merge outputs
-            array_push($folderDataWithAlphaIds, $folder);
-        }
-
-        return EndpointResponse::outputSuccessWithData($folderDataWithAlphaIds);
+        return EndpointResponse::outputSuccessWithData($subdirs);
     }
 }
 

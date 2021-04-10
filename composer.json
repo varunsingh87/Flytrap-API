@@ -19,5 +19,11 @@
             "name": "Varun",
             "email": "31084854+Borumer@users.noreply.github.com"
         }
-    ]
+    ],
+    "scripts": {
+        "test": "phpunit tests"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    }
 }
