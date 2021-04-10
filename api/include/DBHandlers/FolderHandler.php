@@ -6,18 +6,14 @@ namespace Flytrap\DBHandlers;
 use Flytrap\EndpointResponse;
 use Flytrap\DBHandlers\UserChecker;
 
-use Flytrap\Security\NumberAlphaIdConverter;
-
 class FolderHandler
 {
     protected UserChecker $dbChecker;
-    protected NumberAlphaIdConverter $toAlphaId;
     protected $folderAlphaId;
 
     public function __construct($userApiKey)
     {
         $this->dbChecker = new UserChecker($userApiKey);
-        $this->toAlphaId = new NumberAlphaIdConverter(10);
     }
 
     public function setFolderAlphaId($folderAlphaId = 0)
@@ -75,9 +71,13 @@ class FolderHandler
 
     public function getFolderAudioFiles()
     {
-        $query = "SELECT * FROM audio_files 
-        JOIN folders ON folders.id = audio_files.folder_id 
-        WHERE folders.alpha_id = '" . $this->folderAlphaId . "'";
+        if ($this->folderAlphaId === 0) {
+            $query = "SELECT * FROM audio_files WHERE folder_id = 0";
+        } else if (!is_numeric($this->folderAlphaId)) {
+            $query = "SELECT * FROM audio_files 
+            JOIN folders ON folders.id = audio_files.folder_id 
+            WHERE folders.alpha_id = '" . $this->folderAlphaId . "'";
+        }
 
         $audioFiles = $this->dbChecker->executeQuery($query);
 
@@ -91,10 +91,13 @@ class FolderHandler
 
     public function getFolderSubdirectories()
     {
-        $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
-        folders.folder_name AS folder_name, folders.time_created AS time_created FROM folders 
-        JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
-        WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "'";
+        if ($this->folderAlphaId === 0) {
+            $query = "SELECT id, alpha_id, folder_name, time_created FROM folders WHERE parent_id = 0";
+        } else if (!is_numeric($this->folderAlphaId)) {
+            $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
+            folders.folder_name AS folder_name, folders.time_created AS time_created FROM folders 
+            JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "'";
+        }
 
         $subdirs = $this->dbChecker->executeQuery($query);
 
