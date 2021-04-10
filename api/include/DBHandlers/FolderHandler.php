@@ -30,7 +30,7 @@ class FolderHandler
     {
         if (isset($this->folderAlphaId)) {
             $result = $this->dbChecker->executeQuery(
-                "SELECT user_id FROM folders WHERE alpha_id = " . $this->folderAlphaId
+                "SELECT user_id FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'"
             );
         }
         else
@@ -59,7 +59,8 @@ class FolderHandler
 
     public function getFolderInfo()
     {
-        $query = "SELECT id, folder_name, parent_id, time_created FROM folders WHERE id = " . $this->folderAlphaId;
+        $query = "SELECT id, folder_name, parent_id, time_created 
+        FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
 
         $folderInfo = $this->dbChecker->executeQuery($query);
 
@@ -76,7 +77,7 @@ class FolderHandler
     {
         $query = "SELECT * FROM audio_files 
         JOIN folders ON folders.id = audio_files.folder_id 
-        WHERE folders.alpha_id = " . $this->folderAlphaId;
+        WHERE folders.alpha_id = '" . $this->folderAlphaId . "'";
 
         $audioFiles = $this->dbChecker->executeQuery($query);
 
@@ -93,7 +94,7 @@ class FolderHandler
         $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
         folders.folder_name AS folder_name, folders.time_created AS time_created FROM folders 
         JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
-        WHERE parent_folders.alpha_id = " . $this->folderAlphaId;
+        WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "'";
 
         $subdirs = $this->dbChecker->executeQuery($query);
 
