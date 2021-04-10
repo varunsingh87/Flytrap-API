@@ -79,7 +79,7 @@ class FolderHandler
         $query = "";
 
         if ($this->folderAlphaId == 0) {
-            $query = "SELECT * FROM audio_files WHERE folder_id = 0 AND user_id = " . $this->dbChecker->userId;
+            $query = "SELECT id, alpha_id, file_name, folder_id, user_id, time_created FROM audio_files WHERE folder_id = 0 AND user_id = " . $this->dbChecker->userId;
         }
         else if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT * FROM audio_files 
