@@ -18,6 +18,7 @@ class NumberAlphaIdConverter
 
     public function convertAlphaIdToNumericId($in)
     {
+        $padUpPos = $this->pad_up;
         $out = '';
 
         $len = strlen($in) - 1;
@@ -28,10 +29,10 @@ class NumberAlphaIdConverter
         }
 
         if (is_numeric($this->pad_up)) {
-            $this->pad_up--;
+            $padUpPos--;
 
-            if ($this->pad_up > 0) {
-                $out -= pow($this->base, $this->pad_up);
+            if ($padUpPos > 0) {
+                $out -= pow($this->base, $padUpPos);
             }
         }
 
@@ -39,7 +40,7 @@ class NumberAlphaIdConverter
     }
 
     /**
-     * Translates a number to a short alhanumeric version
+     * Translates a number to a short alphanumeric version
      *
      * Translated any number up to 9007199254740992
      * to a shorter version in letters e.g.:
