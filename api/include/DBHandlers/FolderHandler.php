@@ -58,7 +58,7 @@ class FolderHandler
         $query="";
         if ($this->folderAlphaId == 0) {
             $query = "SELECT id, folder_name, parent_id, time_created FROM folders 
-            WHERE parent_id = 0 AND user_id = " . $this->userId;
+            WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
         } else if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT id, folder_name, parent_id, time_created 
             FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
