@@ -55,36 +55,36 @@ class FolderHandler
 
     public function getFolderInfo()
     {
-        $query="";
-        if ($this->folderAlphaId == 0) {
-            $query = "SELECT id, folder_name, parent_id, time_created FROM folders 
-            WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
-        } else if (!is_numeric($this->folderAlphaId)) {
+        if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT id, folder_name, parent_id, time_created 
             FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
+
+            $folderInfo = $this->dbChecker->executeQuery($query);
+
+            if (mysqli_num_rows($folderInfo) != 1) {
+                return EndpointResponse::outputGenericError();
+            }
+
+            $folderInfo = mysqli_fetch_assoc($folderInfo);
+
+            return EndpointResponse::outputSuccessWithData($folderInfo);
         }
-
-        $folderInfo = $this->dbChecker->executeQuery($query);
-
-        if (mysqli_num_rows($folderInfo) != 1) {
-            return EndpointResponse::outputGenericError();
+        else {
+            return EndpointResponse::outputSuccessWithoutData();
         }
-
-        $folderInfo = mysqli_fetch_assoc($folderInfo);
-
-        return EndpointResponse::outputSuccessWithData($folderInfo);
     }
 
     public function getFolderAudioFiles()
     {
-        $query="";
+        $query = "";
 
         if ($this->folderAlphaId == 0) {
-            $query = "SELECT * FROM audio_files WHERE folder_id = 0";
-        } else if (!is_numeric($this->folderAlphaId)) {
+            $query = "SELECT * FROM audio_files WHERE folder_id = 0 AND user_id = " . $this->dbChecker->userId;
+        }
+        else if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT * FROM audio_files 
             JOIN folders ON folders.id = audio_files.folder_id 
-            WHERE folders.alpha_id = '" . $this->folderAlphaId . "'";
+            WHERE folders.alpha_id = '" . $this->folderAlphaId . "' AND audio_files.user_id = " . $this->dbChecker->userId;
         }
 
         $audioFiles = $this->dbChecker->executeQuery($query);
@@ -101,11 +101,14 @@ class FolderHandler
     {
         $query = "";
         if ($this->folderAlphaId == 0) {
-            $query = "SELECT id, alpha_id, folder_name, time_created FROM folders WHERE parent_id = 0";
-        } else if (!is_numeric($this->folderAlphaId)) {
+            $query = "SELECT id, alpha_id, folder_name, time_created FROM folders 
+            WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
+        }
+        else if (!is_numeric($this->folderAlphaId)) {
             $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
-            folders.folder_name AS folder_name, folders.time_created AS time_created FROM folders 
-            JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "'";
+            folders.folder_name AS folder_name, folders.time_created AS time_created 
+            FROM folders JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
+            WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "' AND parent_folders.user_id = " . $this->dbChecker->userId;
         }
 
         $subdirs = $this->dbChecker->executeQuery($query);
