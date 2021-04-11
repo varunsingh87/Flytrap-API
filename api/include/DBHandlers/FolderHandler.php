@@ -138,14 +138,16 @@ class FolderHandler
 
     public function createNewFolder($newFolderName)
     {
-        $parentFolderId = $this->dbChecker->executeQuery("SELECT id FROM folders WHERE alpha_id = " . $this->folderAlphaId . " AND user_id = " . $this->dbChecker->userId);
+        $parentFolderId = $this->dbChecker->executeQuery("SELECT id FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "' AND user_id = " . $this->dbChecker->userId);
 
-        if (mysqli_num_rows($parentFolderId) < 1) {
+        if (!!!$parentFolderId)
+            return EndpointResponse::outputGenericError();
+
+        if (mysqli_num_rows($parentFolderId) < 1)
             return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");
-        }
 
-        $parentFolderId = mysqli_fetch_array($parentFolderId)[0];        
-        
+        $parentFolderId = mysqli_fetch_array($parentFolderId)[0];
+
         $this->dbChecker->executeQuery("INSERT INTO folders (parent_id, folder_name, user_id) VALUES ($parentFolderId, '$newFolderName', " . $this->dbChecker->userId . ")");
 
         if ($this->dbChecker->lastQueryWasSuccessful()) {
