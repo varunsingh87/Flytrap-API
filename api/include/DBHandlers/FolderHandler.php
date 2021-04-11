@@ -53,32 +53,37 @@ class FolderHandler
 
     }
 
-    private function isFolderIdZero() {
+    private function isFolderIdZero()
+    {
         return $this->folderAlphaId == 0;
     }
 
-    private function isFolderIdAlphanumeric() {
+    private function isFolderIdAlphanumeric()
+    {
         return ctype_alnum($this->folderAlphaId);
     }
 
     public function getFolderInfo()
     {
-        if ($this->isFolderIdAlphanumeric()) {
-            $query = "SELECT id, folder_name, parent_id, time_created 
-            FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
+        if (!$this->isFolderIdAlphanumeric())
+            return EndpointResponse::outputSuccessWithoutData();
 
-            $folderInfo = $this->dbChecker->executeQuery($query);
+        $query = "SELECT id, folder_name, parent_id, time_created 
+            FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "' LIMIT 1";
 
-            if (mysqli_num_rows($folderInfo) != 1) {
-                return EndpointResponse::outputGenericError();
-            }
+        $folderInfo = $this->dbChecker->executeQuery($query);
 
+        $returnedRows = mysqli_num_rows($folderInfo);
+        
+        if ($returnedRows == 1) {
             $folderInfo = mysqli_fetch_assoc($folderInfo);
-
             return EndpointResponse::outputSuccessWithData($folderInfo);
         }
+        else if ($returnedRows == 0) {
+            return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist");
+        }
         else {
-            return EndpointResponse::outputSuccessWithoutData();
+            return EndpointResponse::outputGenericError();
         }
     }
 
