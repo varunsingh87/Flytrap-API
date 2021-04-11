@@ -63,12 +63,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
 
         SimpleRest::setHttpHeaders($response["statusCode"]);
-        echo json_encode([
-            "response" => $response,
-            "folder_id" => $_GET["folder_id"],
-            "folder_id_is_zero_second" => $_GET["folder_id"] == 0,
-            "folder_id_is_zero_first" => 0 == $_GET["folder_id"]
-        ]);
+        echo json_encode($response);
 
         break;
 }
