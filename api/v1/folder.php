@@ -29,41 +29,45 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $excludeFolder = $_GET['exclude_folder'] ?? false;
 
         switch (true) {
-            // Both
+            // Include both
             case !$excludeAudio && !$excludeFolder:
                 $response['folder'] = $folderHandler->getFolderSubdirectories();
                 $response['audio'] = $folderHandler->getFolderAudioFiles();
 
                 if ($response['folder']['statusCode'] === $response['audio']['statusCode']) {
                     $response['statusCode'] = $response['folder']['statusCode'];
-                } else {
+                }
+                else {
                     $response['statusCode'] = 200;
                 }
 
                 break;
-            
-            // Folder ONLY
+
+            // Include folder ONLY
             case $excludeAudio && !$excludeFolder:
                 $response['folder'] = $folderHandler->getFolderSubdirectories();
                 $response["statusCode"] = $response['folder']['statusCode'];
                 break;
-            
-            // Audio ONLY
+
+            // Include audio ONLY
             case $excludeFolder && !$excludeAudio:
                 $response['audio'] = $folderHandler->getFolderAudioFiles();
                 $response["statusCode"] = $response['audio']['statusCode'];
                 break;
-            
-            // Neither
+
+            // Include neither
             default:
                 $response["statusCode"] = 201;
-                SimpleRest::setHttpHeaders($response["statusCode"]);
                 break;
 
         }
 
         SimpleRest::setHttpHeaders($response["statusCode"]);
-        echo json_encode($response);
+        echo json_encode([
+            "response" => $response,
+            "folder_id" => $_GET["folder_id"],
+            "folder_id_is_zero" => $_GET["folder_id"] == 0
+        ]);
 
         break;
 }
