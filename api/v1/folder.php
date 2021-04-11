@@ -69,6 +69,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         $folderHandler->setFolderAlphaId($_POST["parent_id"]);
         $response = $folderHandler->createNewFolder($_POST["name"]);
+
+        SimpleRest::setHttpHeaders($response["statusCode"]);
+        echo json_encode($response);
         break;
 }
 
