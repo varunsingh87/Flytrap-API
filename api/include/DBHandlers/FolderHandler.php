@@ -74,7 +74,7 @@ class FolderHandler
         $folderInfo = $this->dbChecker->executeQuery($query);
 
         $returnedRows = mysqli_num_rows($folderInfo);
-        
+
         if ($returnedRows == 1) {
             $folderInfo = mysqli_fetch_assoc($folderInfo);
             return EndpointResponse::outputSuccessWithData($folderInfo);
@@ -134,6 +134,30 @@ class FolderHandler
         $subdirs = mysqli_fetch_all($subdirs, MYSQLI_ASSOC);
 
         return EndpointResponse::outputSuccessWithData($subdirs);
+    }
+
+    public function createNewFolder($newFolderName)
+    {
+        $parentFolderId = $this->dbChecker->executeQuery("SELECT id FROM folders WHERE alpha_id = " . $this->folderAlphaId . " AND user_id = " . $this->dbChecker->userId);
+
+        if (mysqli_num_rows($parentFolderId) < 1) {
+            return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");
+        }
+
+        $parentFolderId = mysqli_fetch_array($parentFolderId)[0];        
+        
+        $this->dbChecker->executeQuery("INSERT INTO folders (parent_id, folder_name, user_id) VALUES ($parentFolderId, '$newFolderName', " . $this->dbChecker->userId . ")");
+
+        if ($this->dbChecker->lastQueryWasSuccessful()) {
+            $folder = $this->dbChecker->executeQuery("SELECT * FROM folders WHERE parent_id = $parentFolderId AND folder_name = '$newFolderName' AND user_id = " . $this->dbChecker->userId . " ORDER BY time_created DESC LIMIT 1");
+
+            if (mysqli_num_rows($folder) == 1) {
+                $folder = mysqli_fetch_assoc($folder);
+                return EndpointResponse::outputSuccessWithData($folder);
+            }
+        }
+
+        return EndpointResponse::outputGenericError(" and the folder was not created.");
     }
 }
 

@@ -66,6 +66,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode($response);
 
         break;
+    case 'POST':
+        $folderHandler->setFolderAlphaId($_POST["parent_id"]);
+        $response = $folderHandler->createNewFolder($_POST["name"]);
+        break;
 }
 
 ?>
