@@ -6,14 +6,18 @@ namespace Flytrap\DBHandlers;
 use Flytrap\EndpointResponse;
 use Flytrap\DBHandlers\UserChecker;
 
+use Flytrap\Security\NumberAlphaIdConverter;
+
 class FolderHandler
 {
     protected UserChecker $dbChecker;
     protected $folderAlphaId;
+    protected $generator;
 
     public function __construct($userApiKey)
     {
         $this->dbChecker = new UserChecker($userApiKey);
+        $this->generator = new NumberAlphaIdConverter(10);
     }
 
     public function setFolderAlphaId($folderAlphaId = 0)
@@ -147,11 +151,12 @@ class FolderHandler
             return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");
 
         $parentFolderId = mysqli_fetch_array($parentFolderId)[0];
+        $alphaId = $this->generator->generateId();
 
-        $this->dbChecker->executeQuery("INSERT INTO folders (parent_id, folder_name, user_id) VALUES ($parentFolderId, '$newFolderName', " . $this->dbChecker->userId . ")");
+        $this->dbChecker->executeQuery("INSERT INTO folders (alpha_id, parent_id, folder_name, user_id) VALUES ('$alphaId', $parentFolderId, '$newFolderName', " . $this->dbChecker->userId . ")");
 
         if ($this->dbChecker->lastQueryWasSuccessful()) {
-            $folder = $this->dbChecker->executeQuery("SELECT * FROM folders WHERE parent_id = $parentFolderId AND folder_name = '$newFolderName' AND user_id = " . $this->dbChecker->userId . " ORDER BY time_created DESC LIMIT 1");
+            $folder = $this->dbChecker->executeQuery("SELECT * FROM folders WHERE alpha_id = '$alphaId' ORDER BY time_created DESC LIMIT 1");
 
             if (mysqli_num_rows($folder) == 1) {
                 $folder = mysqli_fetch_assoc($folder);
