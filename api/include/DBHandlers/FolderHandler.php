@@ -53,9 +53,17 @@ class FolderHandler
 
     }
 
+    private function isFolderIdZero() {
+        return $this->folderAlphaId == 0;
+    }
+
+    private function isFolderIdAlphanumeric() {
+        return ctype_alnum($this->folderAlphaId);
+    }
+
     public function getFolderInfo()
     {
-        if (!is_numeric($this->folderAlphaId)) {
+        if ($this->isFolderIdAlphanumeric()) {
             $query = "SELECT id, folder_name, parent_id, time_created 
             FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'";
 
@@ -78,10 +86,10 @@ class FolderHandler
     {
         $query = "";
 
-        if ($this->folderAlphaId == 0) {
+        if ($this->isFolderIdZero()) {
             $query = "SELECT * FROM audio_files WHERE folder_id = 0 AND user_id = " . $this->dbChecker->userId;
         }
-        else if (!is_numeric($this->folderAlphaId)) {
+        else if ($this->isFolderIdAlphanumeric()) {
             $query = "SELECT audio_files.id AS id, audio_files.alpha_id AS alpha_id, 
             audio_files.file_name AS file_name, audio_files.time_created AS time_created 
             FROM audio_files JOIN folders ON folders.id = audio_files.folder_id 
@@ -101,11 +109,11 @@ class FolderHandler
     public function getFolderSubdirectories()
     {
         $query = "";
-        if ($this->folderAlphaId == 0) {
+        if ($this->isFolderIdZero()) {
             $query = "SELECT id, alpha_id, folder_name, time_created FROM folders 
             WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
         }
-        else if (!is_numeric($this->folderAlphaId)) {
+        else if ($this->isFolderIdAlphanumeric()) {
             $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
             folders.folder_name AS folder_name, folders.time_created AS time_created 
             FROM folders JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
