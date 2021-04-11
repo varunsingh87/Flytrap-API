@@ -66,7 +66,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode([
             "response" => $response,
             "folder_id" => $_GET["folder_id"],
-            "folder_id_is_zero" => $_GET["folder_id"] == 0
+            "folder_id_is_zero" => 0 == $_GET["folder_id"]
         ]);
 
         break;
