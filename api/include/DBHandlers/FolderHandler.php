@@ -16,9 +16,9 @@ class FolderHandler
         $this->dbChecker = new UserChecker($userApiKey);
     }
 
-    public function setFolderAlphaId($folderAlphaId)
+    public function setFolderAlphaId($folderAlphaId = 0)
     {
-        $this->folderAlphaId = $folderAlphaId ?? 0;
+        $this->folderAlphaId = empty($folderAlphaId) ? 0 : $folderAlphaId;
         $this->checkUserOwnsFolder();
     }
 
