@@ -11,6 +11,8 @@ The documentation is on the [Borum Developer Docs](https://developer.borumtech.c
 
 1. Install and make sure PHP is configured
 
+2. Run the command `php -s localhost:8100` to start the server and open any endpoint in your browser
+
 ## Built With
 
 I use the following tools to develop, test, and deploy the Flytrap API:

@@ -9,7 +9,13 @@ use VarunS\PHPSleep\SimpleRest;
 header("Access-Control-Allow-Headers: Authorization,authorization");
 header("Access-Control-Expose-Headers: Authorization,authorization");
 header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"]);
+
+if (isset($_SERVER["HTTP_ORIGIN"])) {
+    header("Access-Control-Allow-Origin: " . $_SERVER["HTTP_ORIGIN"]);
+} else {
+    $_SERVER["HTTP_ORIGIN"] = "localhost:8100";
+}
+
 SimpleRest::handleRequestMethodValidation("GET", "POST", "PUT", "DELETE", "OPTIONS");
 
 $headers = apache_request_headers();
