@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "icanhazstring/composer-unused": "^0.7.5",
-        "varuns/php-sleep": ">=1.0.0-alpha"
+        "varuns/php-sleep": ">=1.0.0-alpha",
+        "vlucas/phpdotenv": "^5.3"
     },
     "autoload": {
         "psr-4": {

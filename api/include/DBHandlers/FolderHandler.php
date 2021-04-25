@@ -6,14 +6,18 @@ namespace Flytrap\DBHandlers;
 use Flytrap\EndpointResponse;
 use Flytrap\DBHandlers\UserChecker;
 
+use Flytrap\Security\NumberAlphaIdConverter;
+
 class FolderHandler
 {
     protected UserChecker $dbChecker;
     protected $folderAlphaId;
+    protected $generator;
 
     public function __construct($userApiKey)
     {
         $this->dbChecker = new UserChecker($userApiKey);
+        $this->generator = new NumberAlphaIdConverter(10);
     }
 
     public function setFolderAlphaId($folderAlphaId = 0)
@@ -74,7 +78,7 @@ class FolderHandler
         $folderInfo = $this->dbChecker->executeQuery($query);
 
         $returnedRows = mysqli_num_rows($folderInfo);
-        
+
         if ($returnedRows == 1) {
             $folderInfo = mysqli_fetch_assoc($folderInfo);
             return EndpointResponse::outputSuccessWithData($folderInfo);
@@ -134,6 +138,40 @@ class FolderHandler
         $subdirs = mysqli_fetch_all($subdirs, MYSQLI_ASSOC);
 
         return EndpointResponse::outputSuccessWithData($subdirs);
+    }
+
+    public function createNewFolder($newFolderName)
+    {
+        $parentFolderId = 0;
+
+        if ($this->isFolderIdAlphanumeric()) {
+            $parentId = $this->folderAlphaId;
+            $parentFolderIdQuery = "SELECT id FROM folders WHERE alpha_id = '$parentId' AND user_id = " . $this->dbChecker->userId;
+            $parentFolderId = $this->dbChecker->executeQuery($parentFolderIdQuery);
+    
+            if (!!!$parentFolderId)
+                return EndpointResponse::outputGenericError();
+    
+            if (mysqli_num_rows($parentFolderId) < 1)
+                return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");    
+            
+            $parentFolderId = mysqli_fetch_array($parentFolderId)[0];
+        }
+        
+        $alphaId = $this->generator->generateId();
+
+        $this->dbChecker->executeQuery("INSERT INTO folders (alpha_id, parent_id, folder_name, user_id) VALUES ('$alphaId', $parentFolderId, '$newFolderName', " . $this->dbChecker->userId . ")");
+
+        if ($this->dbChecker->lastQueryWasSuccessful()) {
+            $folder = $this->dbChecker->executeQuery("SELECT * FROM folders WHERE alpha_id = '$alphaId' ORDER BY time_created DESC LIMIT 1");
+
+            if (mysqli_num_rows($folder) == 1) {
+                $folder = mysqli_fetch_assoc($folder);
+                return EndpointResponse::outputSuccessWithData($folder);
+            }
+        }
+
+        return EndpointResponse::outputGenericError(" and the folder was not created.");
     }
 }
 

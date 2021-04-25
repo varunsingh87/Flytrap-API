@@ -1,5 +1,5 @@
 /vendor/
 /node_modules/
 .vercel
-.env
+*.env
 .phpunit.result.cache
