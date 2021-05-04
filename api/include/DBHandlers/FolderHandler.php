@@ -174,8 +174,20 @@ class FolderHandler
         return EndpointResponse::outputGenericError(" and the folder was not created.");
     }
 
+    /**
+     * Deletes a folder using either the alpha id or numeric id
+     */
     public function deleteFolder() {
-        $this->dbChecker->executeQuery("DELETE FROM folders WHERE alpha_id = " . $this->folderAlphaId . " AND user_id = " . $this->dbChecker->userId);
+        if (is_numeric($this->folderAlphaId))
+            $this->dbChecker->executeQuery("DELETE FROM folders WHERE id = " . $this->folderAlphaId . " AND user_id = " . $this->dbChecker->userId);
+        else if ($this->isFolderIdAlphanumeric())
+            $this->dbChecker->executeQuery("DELETE FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "' AND user_id = " . $this->dbChecker->userId);
+        else {
+            return EndpointResponse::outputSpecificErrorMessage(
+                "400", 
+                "The folder was not deleted. This is likely not a problem with our servers."
+            );
+        }
 
         if ($this->dbChecker->lastQueryWasSuccessful()) 
             return EndpointResponse::outputSuccessWithoutData();
