@@ -173,6 +173,19 @@ class FolderHandler
 
         return EndpointResponse::outputGenericError(" and the folder was not created.");
     }
-}
 
-?>
+    public function deleteFolder() {
+        $this->dbChecker->executeQuery("DELETE FROM folders WHERE alpha_id = " . $this->folderAlphaId . " AND user_id = " . $this->dbChecker->userId);
+
+        if ($this->dbChecker->lastQueryWasSuccessful()) 
+            return EndpointResponse::outputSuccessWithoutData();
+        else if ($this->dbChecker->lastQueryAffectedNoRows()) {
+            return EndpointResponse::outputSpecificErrorMessage(
+                "404", 
+                "The folder was not found for this account"
+            );
+        }
+
+        return EndpointResponse::outputGenericError();
+    }
+}

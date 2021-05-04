@@ -18,7 +18,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
 }
 
 header("Access-Control-Allow-Credentials: true");
-SimpleRest::handleRequestMethodValidation("GET", "POST", "OPTIONS");
+SimpleRest::handleRequestMethodValidation("GET", "POST", "DELETE", "OPTIONS");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") exit();
 
@@ -81,6 +81,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $folderHandler->setFolderAlphaId($_POST["parent_id"]);
         $response = $folderHandler->createNewFolder($_POST["name"]);
 
+        SimpleRest::setHttpHeaders($response["statusCode"]);
+        echo json_encode($response);
+        break;
+    case 'DELETE':
+        $delete = [];
+        parse_str(file_get_contents("php://input"), $delete);
+
+        $folderHandler->setFolderAlphaId($delete["folder_id"]);
+        
+        $response = $folderHandler->deleteFolder();
+        
         SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);
         break;
