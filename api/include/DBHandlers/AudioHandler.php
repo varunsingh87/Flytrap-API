@@ -34,7 +34,7 @@ class AudioHandler
         $this->dbChecker->executeQuery("DELETE FROM audio_files WHERE user_id = " . $this->dbChecker->userId . " AND id = " . $this->audioId);
 
         if ($this->dbChecker->lastQueryWasSuccessful()) {
-            EndpointResponse::outputSuccessWithoutData();
+            return EndpointResponse::outputSuccessWithoutData();
         } else {
             return [
                 "statusCode" => 404,
