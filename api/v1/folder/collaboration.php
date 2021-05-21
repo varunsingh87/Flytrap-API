@@ -4,7 +4,7 @@
 # DELETE to remove a sharee
 # GET to see sharees
 
-require __DIR__ . "/../../vendor/autoload.php";
+require __DIR__ . "/../../../vendor/autoload.php";
 
 use Flytrap\DBHandlers\FolderHandler;
 use VarunS\PHPSleep\SimpleRest;

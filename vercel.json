@@ -5,6 +5,9 @@
         },
         "api/v1/audio/*.php": {
             "runtime": "vercel-php@0.4.0"
+        },
+        "api/v1/folder/*.php": {
+            "runtime": "vercel-php@0.4.0"
         }
     },
     "routes": [
