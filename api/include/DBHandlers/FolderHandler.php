@@ -206,7 +206,7 @@ class FolderHandler
         $result = $this->dbChecker->executeQuery($q);
         $shareId = mysqli_fetch_array($result)[0];
 
-        $userId = $this->userId;
+        $userId = $this->dbChecker->userId;
         $folderId = $this->folderAlphaId;
 
         if ($result->num_rows == 1) {
