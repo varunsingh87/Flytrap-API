@@ -19,6 +19,10 @@
         {
             "src": "/v1/audio/collaboration",
             "dest": "/api/v1/audio/collaboration.php"
+        },
+        {
+            "src": "/v1/folder/collaboration",
+            "dest": "/api/v1/folder/collaboration.php"
         }
     ]
 }
