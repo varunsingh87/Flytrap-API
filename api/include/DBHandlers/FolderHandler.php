@@ -202,23 +202,28 @@ class FolderHandler
     }
 
     public function shareFolder($recipientEmail) {
-        $q = "SELECT id FROM firstborumdatabase.users WHERE email = \"$recipientEmail\" LIMIT 1";
-        $result = $this->dbChecker->executeQuery($q);
-        $shareId = mysqli_fetch_array($result)[0];
+        try {
+        
+            $q = "SELECT id FROM firstborumdatabase.users WHERE email = \"$recipientEmail\" LIMIT 1";
+            $result = $this->dbChecker->executeQuery($q);
+            $shareId = mysqli_fetch_array($result)[0];
 
-        $userId = $this->dbChecker->userId;
-        $folderId = $this->folderAlphaId;
+            $userId = $this->dbChecker->userId;
+            $folderId = $this->folderAlphaId;
 
-        if ($result->num_rows == 1) {
-            $q = "INSERT INTO folder_sharing (sharer_id, folder_id, receiver_id) VALUES ($userId, '$folderId', $shareId)";
-            $this->dbChecker->executeQuery($q);
+            if ($result->num_rows == 1) {
+                $q = "INSERT INTO folder_sharing (sharer_id, folder_id, receiver_id) VALUES ($userId, '$folderId', $shareId)";
+                $this->dbChecker->executeQuery($q);
 
-            if ($this->dbChecker->lastQueryWasSuccessful())
-                return EndpointResponse::outputSuccessWithoutData();
-            else
-                return EndpointResponse::outputSpecificErrorMessage(500, "A server error occurred", $q);
-        } else {
-            return EndpointResponse::outputSpecificErrorMessage(404, "A Borum account for that email does not exist");
+                if ($this->dbChecker->lastQueryWasSuccessful())
+                    return EndpointResponse::outputSuccessWithoutData();
+                else
+                    return EndpointResponse::outputSpecificErrorMessage(500, "A server error occurred", $q);
+            } else {
+                return EndpointResponse::outputSpecificErrorMessage(404, "A Borum account for that email does not exist");
+            }
+        } catch (\Throwable $e) {
+            return EndpointResponse::outputGenericError($e);
         }
     }
 }
