@@ -18,7 +18,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
 }
 
 header("Access-Control-Allow-Credentials: true");
-SimpleRest::handleRequestMethodValidation("GET", "POST", "DELETE", "OPTIONS");
+SimpleRest::handleRequestMethodValidation("GET", "POST", "PUT", "DELETE", "OPTIONS");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") exit();
 
