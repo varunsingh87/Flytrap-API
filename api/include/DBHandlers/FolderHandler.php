@@ -32,8 +32,7 @@ class FolderHandler
             $result = $this->dbChecker->executeQuery(
                 "SELECT user_id FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "'"
             );
-        }
-        else
+        } else
             // Prevent future errors and return successful validation because all users have a root folder
             return true;
 
@@ -45,8 +44,7 @@ class FolderHandler
             $userOwnsFolder = mysqli_fetch_array($result)[0];
             if ($userOwnsFolder != $this->dbChecker->userId) {
                 return EndpointResponse::outputSpecificErrorMessage(401, 'You do not have permission to access that folder');
-            }
-            else {
+            } else {
                 return true;
             }
         }
@@ -54,7 +52,6 @@ class FolderHandler
         else {
             return EndpointResponse::outputSpecificErrorMessage(404, 'That folder does not exist');
         }
-
     }
 
     private function isFolderIdZero()
@@ -82,11 +79,9 @@ class FolderHandler
         if ($returnedRows == 1) {
             $folderInfo = mysqli_fetch_assoc($folderInfo);
             return EndpointResponse::outputSuccessWithData($folderInfo);
-        }
-        else if ($returnedRows == 0) {
+        } else if ($returnedRows == 0) {
             return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist");
-        }
-        else {
+        } else {
             return EndpointResponse::outputGenericError();
         }
     }
@@ -96,13 +91,16 @@ class FolderHandler
         $query = "";
 
         if ($this->isFolderIdZero()) {
-            $query = "SELECT * FROM audio_files WHERE folder_id = 0 AND user_id = " . $this->dbChecker->userId;
-        }
-        else if ($this->isFolderIdAlphanumeric()) {
+            $query = "SELECT id, alpha_id, file_name, time_created, 'owned' AS source FROM audio_files WHERE folder_id = 0 AND user_id = " . $this->dbChecker->userId;
+            
+            $query .= " UNION SELECT file_sharing.id AS id, audio_files.alpha_id AS alpha_id, audio_files.file_name AS file_name, audio_files.time_created AS time_created, 'shared' AS source FROM file_sharing JOIN audio_files ON file_sharing.file_id = audio_files.id WHERE receiver_id = " . $this->dbChecker->userId . " AND file_sharing.folder_id IS NULL";
+        } else if ($this->isFolderIdAlphanumeric()) {
             $query = "SELECT audio_files.id AS id, audio_files.alpha_id AS alpha_id, 
             audio_files.file_name AS file_name, audio_files.time_created AS time_created 
             FROM audio_files JOIN folders ON folders.id = audio_files.folder_id 
             WHERE folders.alpha_id = '" . $this->folderAlphaId . "' AND audio_files.user_id = " . $this->dbChecker->userId;
+            
+            $query .= " UNION SELECT file_sharing.id AS id, audio_files.alpha_id AS alpha_id, audio_files.file_name, audio_files.id AS afid, audio_files.time_created FROM file_sharing JOIN audio_files ON file_sharing.file_id = audio_files.id WHERE receiver_id = " . $this->dbChecker->userId . " AND file_sharing.folder_id = '" . $this->folderAlphaId;
         }
 
         $audioFiles = $this->dbChecker->executeQuery($query);
@@ -119,14 +117,17 @@ class FolderHandler
     {
         $query = "";
         if ($this->isFolderIdZero()) {
-            $query = "SELECT id, alpha_id, folder_name, time_created FROM folders 
+            $query = "SELECT id AS id, alpha_id AS alpha_id, folder_name, time_created, 'owned' AS source FROM folders 
             WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
-        }
-        else if ($this->isFolderIdAlphanumeric()) {
+
+            $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = " . $this->folderAlphaId;
+        } else if ($this->isFolderIdAlphanumeric()) {
             $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
-            folders.folder_name AS folder_name, folders.time_created AS time_created 
+            folders.folder_name AS folder_name, folders.time_created AS time_created, 'owned' AS source 
             FROM folders JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
             WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "' AND parent_folders.user_id = " . $this->dbChecker->userId;
+
+            $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = " . $this->folderAlphaId;
         }
 
         $subdirs = $this->dbChecker->executeQuery($query);
@@ -148,16 +149,16 @@ class FolderHandler
             $parentId = $this->folderAlphaId;
             $parentFolderIdQuery = "SELECT id FROM folders WHERE alpha_id = '$parentId' AND user_id = " . $this->dbChecker->userId;
             $parentFolderId = $this->dbChecker->executeQuery($parentFolderIdQuery);
-    
+
             if (!!!$parentFolderId)
                 return EndpointResponse::outputGenericError();
-    
+
             if (mysqli_num_rows($parentFolderId) < 1)
-                return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");    
-            
+                return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");
+
             $parentFolderId = mysqli_fetch_array($parentFolderId)[0];
         }
-        
+
         $alphaId = $this->generator->generateId();
 
         $this->dbChecker->executeQuery("INSERT INTO folders (alpha_id, parent_id, folder_name, user_id) VALUES ('$alphaId', $parentFolderId, '$newFolderName', " . $this->dbChecker->userId . ")");
@@ -177,23 +178,24 @@ class FolderHandler
     /**
      * Deletes a folder using either the alpha id or numeric id
      */
-    public function deleteFolder() {
+    public function deleteFolder()
+    {
         if (is_numeric($this->folderAlphaId))
             $this->dbChecker->executeQuery("DELETE FROM folders WHERE id = " . $this->folderAlphaId . " AND user_id = " . $this->dbChecker->userId);
         else if ($this->isFolderIdAlphanumeric())
             $this->dbChecker->executeQuery("DELETE FROM folders WHERE alpha_id = '" . $this->folderAlphaId . "' AND user_id = " . $this->dbChecker->userId);
         else {
             return EndpointResponse::outputSpecificErrorMessage(
-                "400", 
+                "400",
                 "The folder was not deleted. This is likely not a problem with our servers."
             );
         }
 
-        if ($this->dbChecker->lastQueryWasSuccessful()) 
+        if ($this->dbChecker->lastQueryWasSuccessful())
             return EndpointResponse::outputSuccessWithoutData();
         else if ($this->dbChecker->lastQueryAffectedNoRows()) {
             return EndpointResponse::outputSpecificErrorMessage(
-                "404", 
+                "404",
                 "The folder was not found for this account"
             );
         }
@@ -201,9 +203,10 @@ class FolderHandler
         return EndpointResponse::outputGenericError();
     }
 
-    public function shareFolder($recipientEmail) {
+    public function shareFolder($recipientEmail)
+    {
         try {
-        
+
             $q = "SELECT id FROM firstborumdatabase.users WHERE email = \"$recipientEmail\" LIMIT 1";
             $result = $this->dbChecker->executeQuery($q);
             $shareId = mysqli_fetch_array($result)[0];
