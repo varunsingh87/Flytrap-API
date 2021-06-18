@@ -2,12 +2,13 @@
 
 namespace Flytrap\DBHandlers;
 
+use Flytrap\Computable;
 use Flytrap\EndpointResponse;
 use Flytrap\FilterType;
 
 use Flytrap\Security\NumberAlphaIdConverter;
 
-class FilterAudioOperation {
+class FilterAudioOperation implements Computable {
     protected $folderId;
     protected $filterType;
     protected $dbChecker;

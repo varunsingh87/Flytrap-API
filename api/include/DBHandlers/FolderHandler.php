@@ -175,6 +175,11 @@ class FolderHandler
         return EndpointResponse::outputGenericError(" and the folder was not created.");
     }
 
+    public function createNewAudio($newAudioName) {
+        $createAudio = new CreateAudioOperation($this->dbChecker, $newAudioName);
+        return $createAudio->enterFile($newAudioName);
+    }
+
     /**
      * Deletes a folder using either the alpha id or numeric id
      */

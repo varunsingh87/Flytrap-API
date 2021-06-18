@@ -6,7 +6,7 @@ use Flytrap\DBHandlers\AudioHandler;
 use Flytrap\DBHandlers\FolderHandler;
 use VarunS\PHPSleep\SimpleRest;
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, "dbconfig.env");
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . "/../../", "dbconfig.env");
 $dotenv->safeLoad();
 
 header("Access-Control-Allow-Headers: Authorization,authorization");
@@ -39,8 +39,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
         break;
     case 'POST':
         $dbHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers["authorization"]));
+        $dbHandler->setFolderAlphaId($_GET['folder_alpha_id']);
         SimpleRest::handlePostParameterValidation("name");
-        $response = ["statusCode" => 201];
+        $response = $dbHandler->createNewAudio($_POST["name"]);
         SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);
         break;
@@ -48,6 +49,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $put = [];
         parse_str(file_get_contents("php://input"), $put);
         $dbHandler->setAudioId($put['audio_id']);
+
         $response = $dbHandler->renameAudio($put['new_name']);
         SimpleRest::setHttpHeaders($response["statusCode"]);
         echo json_encode($response);

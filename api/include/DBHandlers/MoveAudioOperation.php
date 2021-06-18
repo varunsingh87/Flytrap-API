@@ -4,6 +4,7 @@ namespace Flytrap\DBHandlers;
 
 use Flytrap\Security\NumberAlphaIdConverter;
 use Flytrap\Computable;
+use Flytrap\EndpointResponse;
 
 class MoveAudioOperation implements Computable {
     protected int $fileId;
@@ -21,69 +22,28 @@ class MoveAudioOperation implements Computable {
     }
 
     public function compute() {
-        $alphaIds = $this->convertToAlphaId();
-        $audio = $this->selectAudioFile($alphaIds["file"]);
+        $audio = $this->selectAudioFile($this->fileId);
         $userId = mysqli_fetch_array($audio)[0];
 
         if ($this->checkAudioFileExists($audio)) {
             if ($this->checkUserOwnsAudioFile($userId))
-                $this->updateAudioFileLocation($alphaIds["file"], $alphaIds["folder"]);
+                $this->updateAudioFileLocation();
             else {
-                return [
-                    "statusCode" => 401,
-                    "error" => [
-                        "message" => "The audio was not moved because you do not own that audio file"
-                    ]
-                ];
+                return EndpointResponse::outputSpecificErrorMessage(401, 'The audio was not moved because you do not own that audio file');
             }
         } else {
-            return [
-                "statusCode" => 404,
-                "error" => [
-                    "message" => "That is not a valid ID"
-                ]
-            ];
+            return EndpointResponse::outputSpecificErrorMessage(404, 'That is not a valid id');
         }
 
         if ($this->dbHandler->lastQueryWasSuccessful()) {
-            return [
-                "statusCode" => 204
-            ];
+            return EndpointResponse::outputSuccessWithoutData();
         } else {
-            return [
-                "statusCode" => 500,
-                "error" => [
-                    "message" => "An unknown server error occurred and the audio was not moved"
-                ]
-            ];
+            return EndpointResponse::outputGenericError(' and the audio was not moved');
         }
     }
 
-    private function convertToAlphaId() {
-        switch ($this->convert) {
-            case '1':
-                $fileNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
-                break;
-            case '2':
-                $fileNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
-                $newFolderNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
-                break;
-            case '3':
-                $newFolderNumericId = $this->alphaIdConversion->convertAlphaIdToNumericId($this->fileId);
-                break;
-            default:
-                // If the query parameter is 0, it indicates going to the root directory
-                $newFolderNumericId = $this->newFolderId != 0 ? $this->newFolderId : "NULL"; 
-        }
-
-        return [
-            "folder" => $newFolderNumericId,
-            "file" => $fileNumericId
-        ];
-    }
-
-    private function selectAudioFile($fileNumericId) {
-        return $this->dbHandler->executeQuery("SELECT user_id FROM audio_files WHERE id = " . $fileNumericId);
+    private function selectAudioFile() {
+        return $this->dbHandler->executeQuery("SELECT user_id FROM audio_files WHERE id = " . $this->fileId);
     }
 
     private function checkAudioFileExists($result) {
@@ -94,8 +54,8 @@ class MoveAudioOperation implements Computable {
         return $this->userId == $audioFileOwner;
     }
 
-    private function updateAudioFileLocation($folderId, $fileId) {
-        $this->dbHandler->executeQuery("UPDATE audio_files SET folder_id = $folderId WHERE id = $fileId");
+    private function updateAudioFileLocation() {
+        $this->dbHandler->executeQuery("UPDATE audio_files SET folder_id = " . $this->newFolderId . " WHERE id = " . $this->fileId);
     }
 }
 

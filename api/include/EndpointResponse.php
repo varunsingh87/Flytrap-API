@@ -19,7 +19,7 @@ class EndpointResponse
         ];
     }
 
-    public static function outputSpecificErrorMessage(int $statusCode, string $errorMessage, $query = NULL)
+    public static function outputSpecificErrorMessage(int $statusCode, string $errorMessage, $query = NULL, string $devMessage = NULL)
     {
         if ($statusCode >= 200 && $statusCode < 300) {
             throw new \InvalidArgumentException("The status code must be erroneous");
@@ -29,6 +29,7 @@ class EndpointResponse
             "statusCode" => $statusCode,
             "error" => [
                 "message" => $errorMessage,
+                "dev" => $devMessage
             ]
         ];
 
@@ -39,9 +40,9 @@ class EndpointResponse
         return $response;
     }
 
-    public static function outputGenericError($extraMsg = '', $query = NULL)
+    public static function outputGenericError($extraMsg = '', $query = NULL, $devMessage = NULL)
     {
-        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred' . $extraMsg, $query);
+        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred' . $extraMsg, $query, $devMessage);
     }
 }
 
