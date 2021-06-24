@@ -182,6 +182,23 @@ class FolderHandler
         return $createAudio->enterFile($newAudioName);
     }
 
+    public function renameFolder($newName) {
+        $query = "UPDATE folders SET folder_name = ? WHERE id = ?";
+        $sanitizedName = $this->dbChecker->sanitizeParam($newName);
+        
+        $preparedStatement = $this->dbChecker->getConnection()->prepare($query);
+        $preparedStatement->bind_param('si', $sanitizedName, $this->folderAlphaId);
+        $preparedStatement->execute();
+
+        if ($this->dbChecker->lastQueryWasSuccessful()) {
+            return EndpointResponse::outputSuccessWithoutData();
+        } else if ($this->dbChecker->lastQueryGaveError()) {
+            return EndpointResponse::outputGenericError('', $query);
+        } else {
+            return EndpointResponse::outputSpecificErrorMessage(304, 'The folder already has that name');
+        }
+    }
+
     /**
      * Deletes a folder using either the alpha id or numeric id
      */
