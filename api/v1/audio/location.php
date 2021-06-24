@@ -34,8 +34,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         parse_str(file_get_contents("php://input"), $put);
         $dbHandler->setAudioId($put['audio_id']);
         $response = $dbHandler->moveAudio($put['new_folder_id']);
-        // SimpleRest::setHttpHeaders($response["statusCode"]);
-        // echo json_encode($response);
+        SimpleRest::setHttpHeaders($response["statusCode"]);
+        echo json_encode($response);
         break;
 }
 

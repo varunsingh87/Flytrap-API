@@ -26,9 +26,15 @@ class MoveAudioOperation implements Computable {
         $userId = mysqli_fetch_array($audio)[0];
 
         if ($this->checkAudioFileExists($audio)) {
-            if ($this->checkUserOwnsAudioFile($userId))
-                $this->updateAudioFileLocation();
-            else {
+            if ($this->checkUserOwnsAudioFile($userId)) {
+                $locUpdate = $this->updateAudioFileLocation();
+                
+                if (gettype($locUpdate) == 'bool') {
+                    return EndpointResponse::outputSuccessWithoutData();
+                } else {
+                    return EndpointResponse::outputGenericError('', $locUpdate, 'The query did not affect any rows');
+                }
+            } else {
                 return EndpointResponse::outputSpecificErrorMessage(401, 'The audio was not moved because you do not own that audio file');
             }
         } else {
@@ -55,7 +61,15 @@ class MoveAudioOperation implements Computable {
     }
 
     private function updateAudioFileLocation() {
-        $this->dbHandler->executeQuery("UPDATE audio_files SET folder_id = " . $this->newFolderId . " WHERE id = " . $this->fileId);
+        $query = "UPDATE audio_files SET folder_id = " . $this->newFolderId . " WHERE id = " . $this->fileId . " LIMIT 1";
+        
+        $this->dbHandler->executeQuery($query);
+        
+        if ($this->dbHandler->lastQueryWasSuccessful()) {
+            return true;
+        } else {
+            return $query;
+        }
     }
 }
 
