@@ -11,7 +11,7 @@ class MoveAudioOperation implements Computable {
     protected string $newFolderId;
     protected int $convert;
     protected $alphaIdConversion;
-    protected DBChecker $dbHandler;
+    protected UserChecker $dbHandler;
 
     public function __construct($fileId, $newFolderId, $convert = 0, $dbHandler) {
         $this->fileId = $fileId;
@@ -57,19 +57,17 @@ class MoveAudioOperation implements Computable {
     }
 
     private function checkUserOwnsAudioFile($audioFileOwner) {
-        return $this->userId == $audioFileOwner;
+        return $this->dbHandler->userId == $audioFileOwner;
     }
 
     private function updateAudioFileLocation() {
-        $query = "UPDATE audio_files SET folder_id = " . $this->newFolderId . " WHERE id = " . $this->fileId . " LIMIT 1";
+        $query = "UPDATE audio_files SET folder_id = ? WHERE id = ? LIMIT 1";
+        $preparedStatement = $this->dbHandler->getConnection()->prepare($query);
+        $preparedStatement->bind_param('si', $this->newFolderId, $this->fileId);
+        $preparedStatement->execute();
         
-        $this->dbHandler->executeQuery($query);
-        
-        if ($this->dbHandler->lastQueryWasSuccessful()) {
-            return true;
-        } else {
-            return $query;
-        }
+        if ($this->dbHandler->lastQueryWasSuccessful()) return true;
+        else return $query;
     }
 }
 

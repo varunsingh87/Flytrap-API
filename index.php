@@ -18,6 +18,7 @@ function rewrite($url, $file) {
     }
 }
 
+rewrite("/v1/audio/location", "api/v1/audio/location.php");
 rewrite("/v1/audio", "api/v1/audio.php");
 rewrite("/v1/folder", "api/v1/folder.php");
 rewrite("/v1/audio/collaboration", "api/v1/audio/collaboration.php");

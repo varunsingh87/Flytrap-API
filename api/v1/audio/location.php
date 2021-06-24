@@ -5,7 +5,7 @@ require __DIR__ . "/../../../vendor/autoload.php";
 use Flytrap\DBHandlers\AudioHandler;
 use VarunS\PHPSleep\SimpleRest;
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, "dbconfig.env");
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, "/../../../dbconfig.env");
 $dotenv->safeLoad();
 
 header("Access-Control-Allow-Headers: Authorization,authorization");
