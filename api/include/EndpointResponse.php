@@ -42,7 +42,7 @@ class EndpointResponse
 
     public static function outputGenericError($extraMsg = '', $query = NULL, $devMessage = NULL)
     {
-        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred' . $extraMsg, $query, $devMessage);
+        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred ' . $extraMsg, $query, $devMessage);
     }
 }
 

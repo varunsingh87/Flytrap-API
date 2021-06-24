@@ -100,13 +100,13 @@ class FolderHandler
             FROM audio_files JOIN folders ON folders.id = audio_files.folder_id 
             WHERE folders.alpha_id = '" . $this->folderAlphaId . "' AND audio_files.user_id = " . $this->dbChecker->userId;
             
-            $query .= " UNION SELECT file_sharing.id AS id, audio_files.alpha_id AS alpha_id, audio_files.file_name, audio_files.id AS afid, audio_files.time_created FROM file_sharing JOIN audio_files ON file_sharing.file_id = audio_files.id WHERE receiver_id = " . $this->dbChecker->userId . " AND file_sharing.folder_id = '" . $this->folderAlphaId;
+            $query .= " UNION SELECT file_sharing.id AS id, audio_files.alpha_id AS alpha_id, audio_files.file_name, audio_files.time_created FROM file_sharing JOIN audio_files ON file_sharing.file_id = audio_files.id WHERE receiver_id = " . $this->dbChecker->userId . " AND file_sharing.folder_id = '" . $this->folderAlphaId . "'";
         }
 
         $audioFiles = $this->dbChecker->executeQuery($query);
 
         if (!!!$audioFiles)
-            return EndpointResponse::outputGenericError();
+            return EndpointResponse::outputGenericError('', $query, 'The query likely has a syntax error');
 
         $audioFiles = mysqli_fetch_all($audioFiles, MYSQLI_ASSOC);
 
@@ -120,20 +120,22 @@ class FolderHandler
             $query = "SELECT id AS id, alpha_id AS alpha_id, folder_name, time_created, 'owned' AS source FROM folders 
             WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
 
-            $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = " . $this->folderAlphaId;
+            $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = '" . $this->folderAlphaId . "'";
         } else if ($this->isFolderIdAlphanumeric()) {
             $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
             folders.folder_name AS folder_name, folders.time_created AS time_created, 'owned' AS source 
             FROM folders JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
             WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "' AND parent_folders.user_id = " . $this->dbChecker->userId;
 
-            $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = " . $this->folderAlphaId;
+            $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = '" . $this->folderAlphaId . "'";
+        } else {
+            return EndpointResponse::outputSpecificErrorMessage(400, "A valid folder was not specified");
         }
 
         $subdirs = $this->dbChecker->executeQuery($query);
 
         if (!!!$subdirs) {
-            return EndpointResponse::outputGenericError();
+            return EndpointResponse::outputGenericError('and the subdirectories could not be fetched', $query);
         }
 
         $subdirs = mysqli_fetch_all($subdirs, MYSQLI_ASSOC);
@@ -151,7 +153,7 @@ class FolderHandler
             $parentFolderId = $this->dbChecker->executeQuery($parentFolderIdQuery);
 
             if (!!!$parentFolderId)
-                return EndpointResponse::outputGenericError();
+                return EndpointResponse::outputGenericError('', $parentFolderIdQuery);
 
             if (mysqli_num_rows($parentFolderId) < 1)
                 return EndpointResponse::outputSpecificErrorMessage("404", "That folder does not exist in your Flytrap account");
