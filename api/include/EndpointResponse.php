@@ -15,7 +15,7 @@ class EndpointResponse
     public static function outputSuccessWithoutData()
     {
         return [
-            "statusCode" => 201
+            "statusCode" => 204
         ];
     }
 
