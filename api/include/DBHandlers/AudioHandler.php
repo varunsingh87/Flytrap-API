@@ -3,6 +3,7 @@
 namespace Flytrap\DBHandlers;
 
 use Flytrap\EndpointResponse;
+use Flytrap\ItemType;
 
 class AudioHandler
 {
@@ -71,9 +72,9 @@ class AudioHandler
         }
     }
 
-    public function moveAudio($newFolderId, $convert = FALSE)
+    public function moveAudio($newFolderId)
     {
-        $moveAudioOp = new MoveAudioOperation($this->audioId, $newFolderId, $convert, $this->dbChecker);
+        $moveAudioOp = new MoveItemOperation($this->audioId, $newFolderId, $this->dbChecker, 'audio');
         return $moveAudioOp->compute();
     }
 
