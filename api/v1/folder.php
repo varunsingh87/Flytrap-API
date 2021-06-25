@@ -77,6 +77,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode($response);
 
         break;
+    case 'PUT':
+        $put = [];
+        parse_str(file_get_contents("php://input"), $put);
+
+        $folderHandler->setFolderAlphaId($put['id']);
+        $response = $folderHandler->renameFolder($put['new_name']);
+
+        SimpleRest::setHttpHeaders($response["statusCode"]);
+        echo json_encode($response);
+
+        break;
     case 'POST':
         $folderHandler->setFolderAlphaId($_POST["parent_id"]);
         $response = $folderHandler->createNewFolder($_POST["name"]);

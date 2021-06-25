@@ -15,7 +15,7 @@ class EndpointResponse
     public static function outputSuccessWithoutData()
     {
         return [
-            "statusCode" => 201
+            "statusCode" => 204
         ];
     }
 
@@ -33,7 +33,7 @@ class EndpointResponse
             ]
         ];
 
-        if (isset($response["query"])) {
+        if (!isset($response["query"])) {
             $response["query"] = $query;
         }
 
@@ -42,7 +42,7 @@ class EndpointResponse
 
     public static function outputGenericError($extraMsg = '', $query = NULL, $devMessage = NULL)
     {
-        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred' . $extraMsg, $query, $devMessage);
+        return EndpointResponse::outputSpecificErrorMessage('500', 'A server error occurred ' . $extraMsg, $query, $devMessage);
     }
 }
 
