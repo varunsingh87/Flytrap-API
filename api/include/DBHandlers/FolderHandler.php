@@ -54,6 +54,9 @@ class FolderHandler
         }
     }
 
+    /**
+     * Check if folder represented by folderAlphaId is root directory
+     */
     private function isFolderIdZero()
     {
         return $this->folderAlphaId == 0;
@@ -117,15 +120,13 @@ class FolderHandler
     {
         $query = "";
         if ($this->isFolderIdZero()) {
-            $query = "SELECT id AS id, alpha_id AS alpha_id, folder_name, time_created, 'owned' AS source FROM folders 
-            WHERE parent_id = 0 AND user_id = " . $this->dbChecker->userId;
+            $query = "SELECT id, alpha_id, folder_name, time_created, 'owned' AS source FROM folders 
+            WHERE parent_id = '0' AND user_id = " . $this->dbChecker->userId;
 
             $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = '" . $this->folderAlphaId . "'";
         } else if ($this->isFolderIdAlphanumeric()) {
-            $query = "SELECT folders.id AS id, folders.alpha_id AS alpha_id, 
-            folders.folder_name AS folder_name, folders.time_created AS time_created, 'owned' AS source 
-            FROM folders JOIN folders AS parent_folders ON folders.parent_id = parent_folders.id 
-            WHERE parent_folders.alpha_id = '" . $this->folderAlphaId . "' AND parent_folders.user_id = " . $this->dbChecker->userId;
+            $query = "SELECT id, alpha_id, folder_name, time_created, 'owned' AS source 
+            FROM folders WHERE parent_id = '" . $this->folderAlphaId . "' AND user_id = " . $this->dbChecker->userId;
 
             $query .= " UNION SELECT folder_sharing.id AS id, folders.alpha_id AS alpha_id, folders.folder_name AS folder_name, folders.time_created AS time_created, 'shared' AS source FROM folder_sharing JOIN folders ON folder_sharing.folder_id = folders.id WHERE receiver_id = " . $this->dbChecker->userId . " AND folder_sharing.parent_id = '" . $this->folderAlphaId . "'";
         } else {
