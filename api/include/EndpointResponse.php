@@ -33,7 +33,7 @@ class EndpointResponse
             ]
         ];
 
-        if (isset($response["query"])) {
+        if (!isset($response["query"])) {
             $response["query"] = $query;
         }
 

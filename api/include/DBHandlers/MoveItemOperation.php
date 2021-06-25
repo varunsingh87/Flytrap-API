@@ -2,23 +2,24 @@
 
 namespace Flytrap\DBHandlers;
 
-use Flytrap\Security\NumberAlphaIdConverter;
 use Flytrap\Computable;
 use Flytrap\EndpointResponse;
 
-class MoveAudioOperation implements Computable {
+class MoveItemOperation implements Computable {
     protected int $fileId;
     protected string $newFolderId;
-    protected int $convert;
-    protected $alphaIdConversion;
     protected UserChecker $dbHandler;
+    protected string $itemType;
+    protected string $tableName;
+    protected string $columnName;
 
-    public function __construct($fileId, $newFolderId, $convert = 0, $dbHandler) {
+    public function __construct($fileId, $newFolderId, $dbHandler, $itemType) {
         $this->fileId = $fileId;
         $this->newFolderId = $newFolderId;
-        $this->convert = $convert;
-        $this->alphaIdConversion = new NumberAlphaIdConverter(10);
         $this->dbHandler = $dbHandler;
+        $this->itemType = $itemType;
+        $this->tableName = $itemType === 'folder' ? 'folders' : 'audio_files';
+        $this->columnName = $this->tableName == 'folders' ? 'parent_id' : 'folder_id';
     }
 
     public function compute() {
@@ -27,15 +28,15 @@ class MoveAudioOperation implements Computable {
 
         if ($this->checkAudioFileExists($audio)) {
             if ($this->checkUserOwnsAudioFile($userId)) {
-                $locUpdate = $this->updateAudioFileLocation();
+                $locUpdate = $this->updateItemLocation();
                 
-                if (gettype($locUpdate) == 'bool') {
+                if (gettype($locUpdate) == 'boolean') {
                     return EndpointResponse::outputSuccessWithoutData();
                 } else {
                     return EndpointResponse::outputGenericError('', $locUpdate, 'The query did not affect any rows');
                 }
             } else {
-                return EndpointResponse::outputSpecificErrorMessage(401, 'The audio was not moved because you do not own that audio file');
+                return EndpointResponse::outputSpecificErrorMessage(401, 'The ' . $this->itemType . ' was not moved because you do not own it');
             }
         } else {
             return EndpointResponse::outputSpecificErrorMessage(404, 'That is not a valid id');
@@ -44,12 +45,12 @@ class MoveAudioOperation implements Computable {
         if ($this->dbHandler->lastQueryWasSuccessful()) {
             return EndpointResponse::outputSuccessWithoutData();
         } else {
-            return EndpointResponse::outputGenericError(' and the audio was not moved');
+            return EndpointResponse::outputGenericError(' and the ' . $this->itemType . ' was not moved');
         }
     }
 
     private function selectAudioFile() {
-        return $this->dbHandler->executeQuery("SELECT user_id FROM audio_files WHERE id = " . $this->fileId);
+        return $this->dbHandler->executeQuery("SELECT user_id FROM " . $this->tableName . " WHERE id = " . $this->fileId);
     }
 
     private function checkAudioFileExists($result) {
@@ -60,14 +61,17 @@ class MoveAudioOperation implements Computable {
         return $this->dbHandler->userId == $audioFileOwner;
     }
 
-    private function updateAudioFileLocation() {
-        $query = "UPDATE audio_files SET folder_id = ? WHERE id = ? LIMIT 1";
+    private function updateItemLocation() {
+        $query = "UPDATE " . $this->tableName . " SET " . $this->columnName . " = ? WHERE id = ? LIMIT 1";
         $preparedStatement = $this->dbHandler->getConnection()->prepare($query);
-        $preparedStatement->bind_param('si', $this->newFolderId, $this->fileId);
-        $preparedStatement->execute();
         
-        if ($this->dbHandler->lastQueryWasSuccessful()) return true;
-        else return $query;
+        if (gettype($preparedStatement) == 'boolean') return "Query: $query\n" . "Error: " . mysqli_error($this->dbHandler->getConnection());
+
+        $preparedStatement->bind_param('si', $this->newFolderId, $this->fileId);
+        
+        $success = $preparedStatement->execute();
+        
+        return $success ? $success : $query;
     }
 }
 

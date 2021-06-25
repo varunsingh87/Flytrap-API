@@ -5,7 +5,7 @@ namespace Flytrap\DBHandlers;
 
 use Flytrap\EndpointResponse;
 use Flytrap\DBHandlers\UserChecker;
-
+use Flytrap\ItemType;
 use Flytrap\Security\NumberAlphaIdConverter;
 
 class FolderHandler
@@ -252,5 +252,11 @@ class FolderHandler
         } catch (\Throwable $e) {
             return EndpointResponse::outputGenericError($e);
         }
+    }
+
+    public function moveFolder($newFolderId)
+    {
+        $moveAudioOp = new MoveItemOperation($this->folderAlphaId, $newFolderId, $this->dbChecker, 'folder');
+        return $moveAudioOp->compute();
     }
 }
