@@ -26,6 +26,14 @@
         {
             "src": "/v1/folder/collaboration",
             "dest": "/api/v1/folder/collaboration.php"
+        },
+        {
+            "src": "/v1/audio/location",
+            "dest": "/api/v1/audio/location.php"
+        },
+        {
+            "src": "/v1/folder/location",
+            "dest": "/api/v1/folder/location.php"
         }
     ]
 }
