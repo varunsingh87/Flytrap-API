@@ -5,7 +5,7 @@ The Flytrap API is the new REST API for [Flytrap](https://audio.borumtech.com). 
 ## Usage
 
 To use the Flytrap API, go to https://api.audio.borumtech.com.
-The documentation is on the [Borum Developer Docs](https://developer.borumtech.com/Flytrap/Docs)
+The documentation is on the [Borum Developer Docs](https://developer.borumtech.com/Flytrap/Reference) and on [SwaggerHub](https://app.swaggerhub.com/apis/varunsingh87/flytrap-api/1.0.0)
 
 ## Installation (Prerequisites)
 
