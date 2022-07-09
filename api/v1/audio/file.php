@@ -1,5 +1,5 @@
 <?php
-$path = "../../audio_uploads/" . $_GET['alpha_id'];
+$path = "../../../audio_uploads/" . $_GET['alpha_id'];
 if(file_exists($path)) {
 	$fs = filesize($path);
 
