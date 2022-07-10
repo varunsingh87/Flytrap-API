@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /
+RewriteRule ^$ /pages/index.php [L]
+RewriteRule ^v1/([A-Za-z]+)$ api/v1/$1.php [NC]
+
