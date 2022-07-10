@@ -49,17 +49,26 @@ class CreateAudioOperation implements Computable
 
                 // Move into upload folder
                 if (move_uploaded_file($file['tmp_name'], "../../audio_uploads/" . $fileAlphaId)) {
+                    // Delete the temporary file if it still exists
+                    if (file_exists($file['tmp_name']) && is_file($file['tmp_name']))
+                        unlink($file['tmp_name']);
+
                     // Return successful response
                     return EndpointResponse::outputSuccessWithData($audioFileData);
                 } else { // File not saved to the directory
+                    // Delete the temporary file if it still exists
+                    if (file_exists($file['tmp_name']) && is_file($file['tmp_name']))
+                        unlink($file['tmp_name']);
+
                     return EndpointResponse::outputGenericError();
                 }
             } else { // File credentials not saved on the database
+                // Delete the temporary file if it still exists
+                if (file_exists($file['tmp_name']) && is_file($file['tmp_name']))
+                    unlink($file['tmp_name']);
+                
                 return EndpointResponse::outputSpecificErrorMessage(500, "The file details were not saved due to a system error", $q);
             }
-            // Delete the temporary file if it still exists
-            if (file_exists($file['tmp_name']) && is_file($file['tmp_name']))
-                unlink($file['tmp_name']);
         } else {
             return $this->identifyError($file);
         }
