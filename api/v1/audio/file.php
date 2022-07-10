@@ -4,7 +4,7 @@ if(file_exists($path)) {
 	$fs = filesize($path);
 
 	header("Content-Type: audio/mpeg\n");
-	header("Content-Disposition: inline; filename=\"{$_GET['alpha_id']}\"\n");
+	header("Content-Disposition: inline; filename=\"{$_GET['alpha_id']}.{$_GET['file_extension']}\"\n");
 	header("Content-Length: $fs\n");
   	readfile($path);
 } else {

@@ -22,7 +22,6 @@ class CreateAudioOperation implements Computable
     public function compute()
     {
         foreach ($_FILES as $file) {
-            // $this->saveAudio($audioFileData, $fileAlphaId);
             if (!$this->saveFile($file))
                 $this->identifyError($file);
 
@@ -41,10 +40,10 @@ class CreateAudioOperation implements Computable
         }
     }
 
-    function enterFile($fileName)
+    function enterFile($fileName, $fileExtension)
     {
         $fileAlphaId = $this->alphaIdConversion->generateId();
-        $q = "INSERT INTO audio_files (alpha_id, file_name, user_id) VALUES ('$fileAlphaId', '$fileName', " . $this->dbHandler->userId . ")";
+        $q = "INSERT INTO audio_files (alpha_id, file_name, file_extension, user_id) VALUES ('$fileAlphaId', '$fileName', '$fileExtension', {$this->dbHandler->userId})";
         $this->dbHandler->executeQuery($q);
 
         if ($this->dbHandler->lastQueryWasSuccessful()) {
@@ -52,7 +51,9 @@ class CreateAudioOperation implements Computable
             $r = $this->dbHandler->executeQuery($q);
             $audioFileData = mysqli_fetch_assoc($r);
 
-            return EndpointResponse::outputSuccessWithData($audioFileData);
+            if ($this->saveAudio($audioFileData, $fileAlphaId)) {
+                return EndpointResponse::outputSuccessWithData($audioFileData);
+            }
         } else { // File credentials not saved on the database
             return EndpointResponse::outputSpecificErrorMessage(500, "The file details were not saved due to a system error", $q);
         }
@@ -98,7 +99,7 @@ class CreateAudioOperation implements Computable
     {
         $allowed = ['audio/wav', 'audio/x-wav', 'audio/mp3', 'audio/mpeg'];
         if (in_array($file['type'], $allowed)) {
-            return $this->enterFile($file);
+            return $this->enterFile(substr($file, strrpos($file, ".")), substr($file, -strrpos($file, ".")));
         } else {
             return EndpointResponse::outputSpecificErrorMessage(415, "file type is not allowed");
         }
