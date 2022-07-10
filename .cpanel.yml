@@ -1,0 +1,5 @@
+---
+deployment:
+      tasks:
+        - export DEPLOYPATH=/home/libuc6kfb0jg/Flytrap/  
+        - /bin/cp -r /home/libuc6kfb0jg/repositories/Flytrap/Flytrap-API $DEPLOYPATH  # Copy all recursively to $DEPLOYPATH

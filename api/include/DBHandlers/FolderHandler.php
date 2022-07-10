@@ -180,7 +180,7 @@ class FolderHandler
 
     public function createNewAudio($newAudioName) {
         $createAudio = new CreateAudioOperation($this->dbChecker, $newAudioName);
-        return $createAudio->enterFile($newAudioName);
+        return $createAudio->compute();
     }
 
     public function renameFolder($newName) {
