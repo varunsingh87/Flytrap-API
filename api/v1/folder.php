@@ -75,7 +75,7 @@ try {
             echo json_encode(["message" => "Method not allowed"]);
             break;
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     SimpleRest::setHttpHeaders(500);
     echo json_encode([
         "statusCode" => 500,
