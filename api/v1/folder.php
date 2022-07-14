@@ -28,84 +28,57 @@ SimpleRest::handleHeaderValidation($headers, "authorization");
 
 $folderHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers["authorization"]));
 
-switch ($_SERVER['REQUEST_METHOD']) {
-    case 'GET':
-        $folderHandler->setFolderAlphaId($_GET['folder_id']);
+try {
+    switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            $folderHandler->setFolderAlphaId($_GET['folder_id']);
 
-        $response = [
-            "root" => $folderHandler->getFolderInfo()
-        ];
+            SimpleRest::setHttpHeaders(200);
+            echo json_encode([
+                "root" => $folderHandler->getFolderInfo(),
+                "folder" => $folderHandler->getFolderSubdirectories(),
+                "audio" => $folderHandler->getFolderAudioFiles()
+            ]);
 
-        $excludeAudio = $_GET['exclude_audio'] ?? false;
-        $excludeFolder = $_GET['exclude_folder'] ?? false;
+            break;
+        case 'PUT':
+            $put = [];
+            parse_str(file_get_contents("php://input"), $put);
 
-        switch (true) {
-            // Include both
-            case !$excludeAudio && !$excludeFolder:
-                $response['folder'] = $folderHandler->getFolderSubdirectories();
-                $response['audio'] = $folderHandler->getFolderAudioFiles();
+            $folderHandler->setFolderAlphaId($put['id']);
+            $response = $folderHandler->renameFolder($put['new_name']);
 
-                if ($response['folder']['statusCode'] === $response['audio']['statusCode']) {
-                    $response['statusCode'] = $response['folder']['statusCode'];
-                }
-                else {
-                    $response['statusCode'] = 200;
-                }
+            SimpleRest::setHttpHeaders($response["statusCode"]);
+            echo json_encode($response);
 
-                break;
+            break;
+        case 'POST':
+            $folderHandler->setFolderAlphaId($_POST["parent_id"]);
+            $response = $folderHandler->createNewFolder($_POST["name"]);
 
-            // Include folder ONLY
-            case $excludeAudio && !$excludeFolder:
-                $response['folder'] = $folderHandler->getFolderSubdirectories();
-                $response["statusCode"] = $response['folder']['statusCode'];
-                break;
+            SimpleRest::setHttpHeaders($response["statusCode"]);
+            echo json_encode($response);
+            break;
+        case 'DELETE':
+            $delete = [];
+            parse_str(file_get_contents("php://input"), $delete);
 
-            // Include audio ONLY
-            case $excludeFolder && !$excludeAudio:
-                $response['audio'] = $folderHandler->getFolderAudioFiles();
-                $response["statusCode"] = $response['audio']['statusCode'];
-                break;
+            $folderHandler->setFolderAlphaId($delete["folder_id"]);
 
-            // Include neither
-            default:
-                $response["statusCode"] = 201;
-                break;
+            $response = $folderHandler->deleteFolder();
 
-        }
-
-        SimpleRest::setHttpHeaders($response["statusCode"]);
-        echo json_encode($response);
-
-        break;
-    case 'PUT':
-        $put = [];
-        parse_str(file_get_contents("php://input"), $put);
-
-        $folderHandler->setFolderAlphaId($put['id']);
-        $response = $folderHandler->renameFolder($put['new_name']);
-
-        SimpleRest::setHttpHeaders($response["statusCode"]);
-        echo json_encode($response);
-
-        break;
-    case 'POST':
-        $folderHandler->setFolderAlphaId($_POST["parent_id"]);
-        $response = $folderHandler->createNewFolder($_POST["name"]);
-
-        SimpleRest::setHttpHeaders($response["statusCode"]);
-        echo json_encode($response);
-        break;
-    case 'DELETE':
-        $delete = [];
-        parse_str(file_get_contents("php://input"), $delete);
-
-        $folderHandler->setFolderAlphaId($delete["folder_id"]);
-        
-        $response = $folderHandler->deleteFolder();
-        
-        SimpleRest::setHttpHeaders($response["statusCode"]);
-        echo json_encode($response);
-        break;
+            SimpleRest::setHttpHeaders($response["statusCode"]);
+            echo json_encode($response);
+            break;
+        default:
+            SimpleRest::setHttpHeaders(405);
+            echo json_encode(["message" => "Method not allowed"]);
+            break;
+    }
+} catch (Exception $e) {
+    SimpleRest::setHttpHeaders(500);
+    echo json_encode([
+        "statusCode" => 500,
+        "message" => $e->getMessage()
+    ]);
 }
-
-?>
