@@ -37,6 +37,7 @@ try {
 
             SimpleRest::setHttpHeaders(200);
             echo json_encode([
+                "statusCode" => 200,
                 "root" => $folderHandler->getFolderInfo(),
                 "folder" => $folderHandler->getFolderSubdirectories(),
                 "audio" => $folderHandler->getFolderAudioFiles()
