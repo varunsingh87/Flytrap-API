@@ -26,7 +26,9 @@ $headers = apache_request_headers();
 
 SimpleRest::handleHeaderValidation($headers, "authorization");
 
-set_error_handler(throw new ErrorException, E_WARNING);
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    throw new ErrorException($errno, $errstr, $errfile, $errline);
+}, E_WARNING);
 
 $folderHandler = new FolderHandler(SimpleRest::parseAuthorizationHeader($headers["authorization"]));
 
@@ -85,5 +87,3 @@ try {
         "message" => $e->getMessage()
     ]);
 }
-
-restore_error_handler();
